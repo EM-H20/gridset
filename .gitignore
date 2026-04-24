@@ -53,3 +53,15 @@ app.*.map.json
 .env
 .env.local
 .env.*.local
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+android/key.properties
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+android/app/keystore/
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+*.jks
+
+# Play Store CI/CD - 민감한 파일 (자동 생성됨)
+*.keystore
