@@ -4,14 +4,14 @@
 
 Lovable's website radiates warmth through restraint. The entire page sits on a creamy, parchment-toned background (`#f7f4ed`) that immediately separates it from the cold-white conventions of most developer tool sites. This isn't minimalism for minimalism's sake — it's a deliberate choice to feel approachable, almost analog, like a well-crafted notebook. The near-black text (`#1c1c1c`) against this warm cream creates a contrast ratio that's easy on the eyes while maintaining sharp readability.
 
-The custom Camera Plain Variable typeface is the system's secret weapon. Unlike geometric sans-serifs that signal "tech company," Camera Plain has a humanist warmth — slightly rounded terminals, organic curves, and a comfortable reading rhythm. At display sizes (48px–60px), weight 600 with aggressive negative letter-spacing (-0.9px to -1.5px) compresses headlines into confident, editorial statements. The font uses `ui-sans-serif, system-ui` as fallbacks, acknowledging that the custom typeface carries the brand personality.
+The custom **MoneygraphyPixel** typeface (`assets/fonts/Moneygraphy-Pixel.ttf`) is the system's secret weapon. Unlike geometric sans-serifs that signal "tech company," the pixel typeface carries a retro, hand-crafted warmth — blocky glyphs on a 16px grid that evoke early computing without feeling dated. Because this is a bitmap-derived pixel font, **all font sizes MUST be multiples of 16** (16px, 32px, 48px, 64px, 80px, 96px…). Using non-16 multiples causes sub-pixel interpolation that blurs or "breaks" the glyph edges. At display sizes (48px–96px) the font reads as a confident editorial statement; at 16px it remains crisp for UI and body copy. No `letter-spacing` adjustments — the pixel grid already defines spacing, and any non-zero tracking will visibly mis-align glyphs.
 
 What makes Lovable's visual system distinctive is its opacity-driven depth model. Rather than using a traditional gray scale, the system modulates `#1c1c1c` at varying opacities (0.03, 0.04, 0.4, 0.82–0.83) to create a unified tonal range. Every shade of gray on the page is technically the same hue — just more or less transparent. This creates a visual coherence that's nearly impossible to achieve with arbitrary hex values. The border system follows suit: `1px solid #eceae4` for light divisions and `1px solid rgba(28, 28, 28, 0.4)` for stronger interactive boundaries.
 
 **Key Characteristics:**
 
 - Warm parchment background (`#f7f4ed`) — not white, not beige, a deliberate cream that feels hand-selected
-- Camera Plain Variable typeface with humanist warmth and editorial letter-spacing at display sizes
+- **MoneygraphyPixel** pixel typeface — all sizes MUST be multiples of 16px to avoid glyph breakage
 - Opacity-driven color system: all grays derived from `#1c1c1c` at varying transparency levels
 - Inset shadow technique on buttons: `rgba(255,255,255,0.2) 0px 0.5px 0px 0px inset, rgba(0,0,0,0.2) 0px 0px 0px 0.5px inset`
 - Warm neutral border palette: `#eceae4` for subtle, `rgba(28,28,28,0.4)` for interactive elements
@@ -55,33 +55,37 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 
 ### Font Family
 
-- **Primary**: `Camera Plain Variable`, with fallbacks: `ui-sans-serif, system-ui`
-- **Weight range**: 400 (body/reading), 480 (special display), 600 (headings/emphasis)
-- **Feature**: Variable font with continuous weight axis — allows fine-tuned intermediary weights like 480.
+- **Primary**: `MoneygraphyPixel` (asset: `assets/fonts/Moneygraphy-Pixel.ttf`)
+- **Flutter declaration**: `fontFamily: 'MoneygraphyPixel'`
+- **Weight**: Single weight only (400). This is a bitmap-style pixel font — synthetic weight manipulation (bold/italic) corrupts the pixel grid and must not be used.
+- **⚠️ SIZE RULE — CRITICAL**: Every `fontSize` value MUST be an integer multiple of **16** (16, 32, 48, 64, 80, 96, 112, 128…). Any other size causes sub-pixel blurring that breaks glyph readability. This overrides the standard 1px type scale.
+- **Letter-spacing**: Always `0` (normal). Pixel fonts ship their own optical spacing on the 16px grid — any custom tracking mis-aligns glyph edges.
 
-### Hierarchy
+### Hierarchy (16-multiple Scale)
 
-| Role            | Font                  | Size           | Weight | Line Height       | Letter Spacing | Notes                     |
-| --------------- | --------------------- | -------------- | ------ | ----------------- | -------------- | ------------------------- |
-| Display Hero    | Camera Plain Variable | 60px (3.75rem) | 600    | 1.00–1.10 (tight) | -1.5px         | Maximum impact, editorial |
-| Display Alt     | Camera Plain Variable | 60px (3.75rem) | 480    | 1.00 (tight)      | normal         | Lighter hero variant      |
-| Section Heading | Camera Plain Variable | 48px (3.00rem) | 600    | 1.00 (tight)      | -1.2px         | Feature section titles    |
-| Sub-heading     | Camera Plain Variable | 36px (2.25rem) | 600    | 1.10 (tight)      | -0.9px         | Sub-sections              |
-| Card Title      | Camera Plain Variable | 20px (1.25rem) | 400    | 1.25 (tight)      | normal         | Card headings             |
-| Body Large      | Camera Plain Variable | 18px (1.13rem) | 400    | 1.38              | normal         | Introductions             |
-| Body            | Camera Plain Variable | 16px (1.00rem) | 400    | 1.50              | normal         | Standard reading text     |
-| Button          | Camera Plain Variable | 16px (1.00rem) | 400    | 1.50              | normal         | Button labels             |
-| Button Small    | Camera Plain Variable | 14px (0.88rem) | 400    | 1.50              | normal         | Compact buttons           |
-| Link            | Camera Plain Variable | 16px (1.00rem) | 400    | 1.50              | normal         | Underline decoration      |
-| Link Small      | Camera Plain Variable | 14px (0.88rem) | 400    | 1.50              | normal         | Footer links              |
-| Caption         | Camera Plain Variable | 14px (0.88rem) | 400    | 1.50              | normal         | Metadata, small text      |
+| Role            | Font             | Size | Weight | Line Height       | Letter Spacing | Notes                                |
+| --------------- | ---------------- | ---- | ------ | ----------------- | -------------- | ------------------------------------ |
+| Display Hero    | MoneygraphyPixel | 96px | 400    | 1.00 (tight)      | 0              | Maximum impact                       |
+| Display Alt     | MoneygraphyPixel | 80px | 400    | 1.00 (tight)      | 0              | Alt hero / large headline            |
+| Section Heading | MoneygraphyPixel | 64px | 400    | 1.00 (tight)      | 0              | Feature section titles               |
+| Sub-heading     | MoneygraphyPixel | 48px | 400    | 1.00 (tight)      | 0              | Sub-sections                         |
+| Card Title      | MoneygraphyPixel | 32px | 400    | 1.00 (tight)      | 0              | Card headings, stats                 |
+| Body Large      | MoneygraphyPixel | 32px | 400    | 1.50              | 0              | Introductions, emphasized copy       |
+| Body            | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Standard reading text (baseline 1x)  |
+| Button          | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Button labels                        |
+| Button Small    | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Compact buttons (same size — tighter padding instead) |
+| Link            | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Underline decoration                 |
+| Link Small      | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Footer links                         |
+| Caption         | MoneygraphyPixel | 16px | 400    | 1.50              | 0              | Metadata, small text                 |
+
+> **Note on "small" sizes**: Because 16px is the smallest allowed size, compact variants (buttons, captions, links) share the same 16px type size. Create visual hierarchy via **padding, color opacity, and spacing** instead of reducing font size below 16px. Never use 12px / 14px — they will render with broken pixels.
 
 ### Principles
 
-- **Warm humanist voice**: Camera Plain Variable gives Lovable its approachable personality. The slightly rounded terminals and organic curves contrast with the sharp geometric sans-serifs used by most developer tools.
-- **Variable weight as design tool**: The font supports continuous weight values (e.g., 480), enabling nuanced hierarchy beyond standard weight stops. Weight 480 at 60px creates a display style that feels lighter than semibold but stronger than regular.
-- **Compression at scale**: Headlines use negative letter-spacing (-0.9px to -1.5px) for editorial impact. Body text stays at normal tracking for comfortable reading.
-- **Two weights, clear roles**: 400 (body/UI/links/buttons) and 600 (headings/emphasis). The narrow weight range creates hierarchy through size and spacing, not weight variation.
+- **Pixel-grid voice**: MoneygraphyPixel gives the product a retro, crafted personality — readable, playful, and unmistakably *designed*. Treat the glyph grid as a feature, not a constraint.
+- **16-multiple type scale**: The entire typographic system is built on a strict 16px base unit. Headings scale as 1x, 2x, 3x, 4x, 5x, 6x — never in-between.
+- **Hierarchy through size & color, not weight**: No bold/semibold variants exist. Create emphasis with size jumps (16 → 32 → 48) and opacity (`#1c1c1c` at 100% for emphasis, 82% for body, 40% for muted).
+- **No tracking, no italic, no synthetic bold**: All three distort the pixel grid and cause visible breakage. Keep `letterSpacing: 0`, `fontStyle: FontStyle.normal`, and `fontWeight: FontWeight.w400`.
 
 ## 4. Component Stylings
 
@@ -148,8 +152,8 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 ### Navigation
 
 - Clean horizontal nav on cream background, fixed
-- Logo/wordmark left-aligned (128.75 x 22px)
-- Links: Camera Plain 14–16px weight 400, `#1c1c1c` text
+- Logo/wordmark left-aligned (128 x 32px — snap to 16-multiples)
+- Links: MoneygraphyPixel 16px weight 400, `#1c1c1c` text
 - CTA: dark button with inset shadow, 6px radius
 - Mobile: hamburger menu with 6px radius button
 - Subtle border or no border on scroll
@@ -186,17 +190,18 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 
 **Stats Bar**
 
-- Large metrics: "0M+" pattern in 48px+ weight 600
-- Descriptive text below in muted gray
+- Large metrics: "0M+" pattern in 48px or 64px MoneygraphyPixel weight 400
+- Descriptive text below at 16px in muted gray
 - Horizontal layout with generous spacing
 
 ## 5. Layout Principles
 
 ### Spacing System
 
-- Base unit: 8px
-- Scale: 8px, 10px, 12px, 16px, 24px, 32px, 40px, 56px, 80px, 96px, 128px, 176px, 192px, 208px
-- The scale expands generously at the top end — sections use 80px–208px vertical spacing for editorial breathing room
+- Base unit: 16px (matches the font's 16px pixel grid — keeps everything on one rhythm)
+- Scale: 16px, 32px, 48px, 64px, 80px, 96px, 128px, 160px, 192px, 208px
+- Micro-spacing (<16px) allowed only for non-textual gaps (icon padding, borders) — anything that aligns with text must use 16-multiples
+- The scale expands generously at the top end — sections use 96px–208px vertical spacing for editorial breathing room
 
 ### Grid & Container
 
@@ -244,11 +249,12 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 ### Do
 
 - Use the warm cream background (`#f7f4ed`) as the page foundation — it's the brand's signature warmth
-- Use Camera Plain Variable at display sizes with negative letter-spacing (-0.9px to -1.5px)
+- Use `MoneygraphyPixel` at sizes that are **multiples of 16** only (16, 32, 48, 64, 80, 96…)
+- Keep `letterSpacing: 0` — pixel fonts do not tolerate tracking
 - Derive all grays from `#1c1c1c` at varying opacity levels for tonal unity
 - Use the inset shadow technique on dark buttons for tactile depth
 - Use `#eceae4` borders instead of shadows for card containment
-- Keep the weight system narrow: 400 for body/UI, 600 for headings
+- Use size + opacity for hierarchy (no bold/italic variants exist)
 - Use full-pill radius (9999px) only for action pills and icon buttons
 - Apply opacity 0.8 on active states for responsive tactile feedback
 
@@ -257,11 +263,13 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 - Don't use pure white (`#ffffff`) as a page background — the cream is intentional
 - Don't use heavy box-shadows for cards — borders are the containment mechanism
 - Don't introduce saturated accent colors — the palette is intentionally warm-neutral
-- Don't use weight 700 (bold) — 600 is the maximum weight in the system
+- **Don't use any font size that is NOT a multiple of 16** (no 14px, 18px, 20px, 24px, 36px, 60px) — pixels break
+- Don't use synthetic bold, italic, or variable weight — MoneygraphyPixel ships a single pixel-grid weight only
+- Don't apply non-zero `letterSpacing` — it mis-aligns the pixel grid and breaks glyph edges
 - Don't apply 9999px radius on rectangular buttons — pills are for icon/action toggles
 - Don't use sharp focus outlines — the system uses soft shadow-based focus indicators
 - Don't mix border styles — `#eceae4` for passive, `rgba(28,28,28,0.4)` for interactive
-- Don't increase letter-spacing on headings — Camera Plain is designed to run tight at scale
+- Don't scale text with fractional values (`textScaleFactor` non-integer) — snap to integer 16-multiples
 
 ## 8. Responsive Behavior
 
@@ -286,13 +294,13 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 
 ### Collapsing Strategy
 
-- Hero: 60px → 48px → 36px headline scaling with proportional letter-spacing
+- Hero: 96px → 64px → 48px headline scaling (all 16-multiples — never 60/36/24)
 - Navigation: horizontal links → hamburger menu at 768px
 - Feature cards: 3-column → 2-column → single column stacked
 - Template gallery: grid → stacked vertical cards
 - Stats bar: horizontal → stacked vertical
 - Footer: multi-column → stacked single column
-- Section spacing: 128px+ → 64px on mobile
+- Section spacing: 128px+ → 64px on mobile (stay on the 16-multiple grid)
 
 ### Image Behavior
 
@@ -315,18 +323,35 @@ What makes Lovable's visual system distinctive is its opacity-driven depth model
 
 ### Example Component Prompts
 
-- "Create a hero section on cream background (#f7f4ed). Headline at 60px Camera Plain Variable weight 600, line-height 1.10, letter-spacing -1.5px, color #1c1c1c. Subtitle at 18px weight 400, line-height 1.38, color #5f5f5d. Dark CTA button (#1c1c1c bg, #fcfbf8 text, 6px radius, 8px 16px padding, inset shadow) and ghost button (transparent bg, 1px solid rgba(28,28,28,0.4) border, 6px radius)."
-- "Design a card on cream (#f7f4ed) background. Border: 1px solid #eceae4. Radius 12px. No box-shadow. Title at 20px Camera Plain Variable weight 400, line-height 1.25, color #1c1c1c. Body at 14px weight 400, color #5f5f5d."
-- "Build a template gallery: grid of cards with 12px radius, 1px solid #eceae4 border, cream backgrounds. Each card: image with 12px top radius, title below. Hover: subtle border darkening."
-- "Create navigation: sticky on cream (#f7f4ed). Camera Plain 16px weight 400 for links, #1c1c1c text. Dark CTA button right-aligned with inset shadow. Mobile: hamburger menu with 6px radius."
-- "Design a stats section: large numbers at 48px Camera Plain weight 600, letter-spacing -1.2px, #1c1c1c. Labels below at 16px weight 400, #5f5f5d. Horizontal layout with 32px gap."
+- "Create a hero section on cream background (#f7f4ed). Headline at 96px MoneygraphyPixel weight 400, line-height 1.00, letterSpacing 0, color #1c1c1c. Subtitle at 32px weight 400, line-height 1.50, color #5f5f5d. Dark CTA button (#1c1c1c bg, #fcfbf8 text, 6px radius, 16px padding, inset shadow, 16px label) and ghost button (transparent bg, 1px solid rgba(28,28,28,0.4) border, 6px radius)."
+- "Design a card on cream (#f7f4ed) background. Border: 1px solid #eceae4. Radius 12px. No box-shadow. Title at 32px MoneygraphyPixel weight 400, line-height 1.00, color #1c1c1c. Body at 16px weight 400, color #5f5f5d. All font sizes must be multiples of 16."
+- "Build a template gallery: grid of cards with 12px radius, 1px solid #eceae4 border, cream backgrounds. Each card: image with 12px top radius, 16px title below. Hover: subtle border darkening."
+- "Create navigation: sticky on cream (#f7f4ed). MoneygraphyPixel 16px weight 400 for links, #1c1c1c text, letterSpacing 0. Dark CTA button right-aligned with inset shadow. Mobile: hamburger menu with 6px radius."
+- "Design a stats section: large numbers at 64px MoneygraphyPixel weight 400, letterSpacing 0, #1c1c1c. Labels below at 16px weight 400, #5f5f5d. Horizontal layout with 32px gap."
 
 ### Iteration Guide
 
 1. Always use cream (`#f7f4ed`) as the base — never pure white
 2. Derive grays from `#1c1c1c` at opacity levels rather than using distinct hex values
 3. Use `#eceae4` borders for containment, not shadows
-4. Letter-spacing scales with size: -1.5px at 60px, -1.2px at 48px, -0.9px at 36px, normal at 16px
-5. Two weights: 400 (everything except headings) and 600 (headings)
-6. The inset shadow on dark buttons is the signature detail — don't skip it
-7. Camera Plain Variable at weight 480 is for special display moments only
+4. **Every font size must be a multiple of 16px** — if you catch yourself typing 14 / 18 / 20 / 24 / 36 / 60, snap to the nearest 16-multiple
+5. Single weight only (400). Emphasis comes from size + opacity, not bold
+6. `letterSpacing: 0` everywhere — no exceptions for headings
+7. The inset shadow on dark buttons is the signature detail — don't skip it
+8. When in doubt, align both type size and spacing to the 16px grid
+
+### Flutter Usage Snippet
+
+```dart
+Text(
+  '그리드셋',
+  style: TextStyle(
+    fontFamily: 'MoneygraphyPixel',
+    fontSize: 64,           // MUST be a multiple of 16
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0,       // never non-zero
+    height: 1.0,            // 1.0 for display, 1.5 for body
+    color: Color(0xFF1C1C1C),
+  ),
+)
+```
