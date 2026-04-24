@@ -1,7 +1,7 @@
 name: gridset
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.3+3
+version: 1.0.4+4
 environment:
   sdk: ^3.9.2
 dependencies:
@@ -53,7 +53,6 @@ flutter:
     - family: MoneygraphyPixel
       fonts:
         - asset: assets/fonts/Moneygraphy-Pixel.ttf
-
 # 앱 런처 아이콘 설정 (flutter_launcher_icons)
 flutter_launcher_icons:
   android: true
