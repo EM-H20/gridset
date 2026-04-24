@@ -60,3 +60,13 @@ flutter:
     - family: MoneygraphyPixel
       fonts:
         - asset: assets/fonts/Moneygraphy-Pixel.ttf
+
+# 앱 런처 아이콘 설정 (flutter_launcher_icons)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_logo.png"
+  remove_alpha_ios: true
+  # 적응형 아이콘 (Android 8.0+)
+  adaptive_icon_background: "#f7f4ed"
+  adaptive_icon_foreground: "assets/app_logo.png"
