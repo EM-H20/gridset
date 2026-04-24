@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ====================================================================
+# SUH-DEVOPS-TEMPLATE: Auto-added entries
+# ====================================================================
+/.claude/settings.local.json
