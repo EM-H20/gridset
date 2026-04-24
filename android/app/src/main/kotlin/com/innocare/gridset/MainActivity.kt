@@ -1,4 +1,4 @@
-package com.example.gridset
+package com.innocare.gridset
 
 import io.flutter.embedding.android.FlutterActivity
 
