@@ -73,15 +73,17 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cream,
-      body: Center(
-        // 우측 이동(translate) + 화면 폭 대비 확대(FractionallySizedBox).
-        // FractionallySizedBox 가 size 자체를 키우므로 Padding 과 달리
-        // 이미지 축소 부작용 없이 원하는 크기를 얻을 수 있다.
-        child: Transform.translate(
-          offset: const Offset(AppSpacing.xl, 0),
-          child: FractionallySizedBox(
-            widthFactor: 1.2,
-            child: Image.asset('assets/splash.png', fit: BoxFit.contain),
+      body: SafeArea(
+        child: Center(
+          // 우측 이동(translate) + 화면 폭 대비 확대(FractionallySizedBox).
+          // FractionallySizedBox 가 size 자체를 키우므로 Padding 과 달리
+          // 이미지 축소 부작용 없이 원하는 크기를 얻을 수 있다.
+          child: Transform.translate(
+            offset: const Offset(AppSpacing.xl, 0),
+            child: FractionallySizedBox(
+              widthFactor: 1.2,
+              child: Image.asset('assets/splash.png', fit: BoxFit.contain),
+            ),
           ),
         ),
       ),
