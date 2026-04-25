@@ -15,4 +15,7 @@ abstract class RoutePaths {
 
   /// 강제 업데이트 (풀스크린 차단)
   static const String forceUpdate = '/force-update';
+
+  /// Dev 컴포넌트 갤러리 (kDebugMode 진입)
+  static const String dev = '/dev';
 }
