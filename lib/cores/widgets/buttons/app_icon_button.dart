@@ -50,13 +50,17 @@ class _AppIconButtonState extends State<AppIconButton> {
 
   @override
   Widget build(BuildContext context) {
-    final dim = widget.size.w;
+    // iOS HIG (44pt) / Material (48dp) 최소 탭 타겟 보장.
+    // .w 스케일이 좁은 디바이스에서 size 를 줄여도 시각 원형은 size 로 그리되
+    // 탭 영역만 44pt 이상으로 보장.
+    final visualDim = widget.size.w;
+    final hitDim = visualDim < 44 ? 44.0 : visualDim;
     final iconSize = (widget.size * 0.45).sp;
     final opacity = _isDisabled ? 0.4 : (_isPressed ? 0.8 : 1.0);
 
     final core = Container(
-      width: dim,
-      height: dim,
+      width: visualDim,
+      height: visualDim,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.transparent,
@@ -72,20 +76,24 @@ class _AppIconButtonState extends State<AppIconButton> {
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
       onTap: widget.onPressed,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 100),
-        opacity: opacity,
-        child: core,
+      child: SizedBox(
+        width: hitDim,
+        height: hitDim,
+        child: Center(
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: opacity,
+            child: core,
+          ),
+        ),
       ),
     );
 
-    if (widget.semanticLabel != null) {
-      result = Semantics(
-        button: true,
-        label: widget.semanticLabel,
-        child: result,
-      );
-    }
+    result = Semantics(
+      button: true,
+      label: widget.semanticLabel, // null OK — role still surfaced
+      child: result,
+    );
 
     return result;
   }

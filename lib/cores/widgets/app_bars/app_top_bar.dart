@@ -47,7 +47,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
         onMore = null;
 
   final String title;
-  final AppIconButton? trailing;
+  final Widget? trailing;
   final VoidCallback? onBack;
   final VoidCallback? onMore;
   final VoidCallback? onClose;
@@ -59,26 +59,44 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Widget body = switch (_variant) {
+      _AppTopBarVariant.titleLeft => _TitleVariantBody(
+          title: title,
+          trailing: trailing,
+        ),
+      _AppTopBarVariant.backWithMore => _BackWithMoreVariantBody(
+          title: title,
+          onBack: onBack,
+          onMore: onMore,
+        ),
+      _AppTopBarVariant.closeWithSave => _CloseWithSaveVariantBody(
+          title: title,
+          onClose: onClose,
+          onSave: onSave,
+        ),
+    };
+
     return Container(
       height: preferredSize.height,
       color: AppColors.cream,
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.base.w),
-      child: _buildContent(),
+      child: body,
     );
   }
+}
 
-  Widget _buildContent() {
-    switch (_variant) {
-      case _AppTopBarVariant.titleLeft:
-        return _buildTitleVariant();
-      case _AppTopBarVariant.backWithMore:
-        return _buildBackWithMoreVariant();
-      case _AppTopBarVariant.closeWithSave:
-        return _buildCloseWithSaveVariant();
-    }
-  }
+// ---------------------------------------------------------------------------
+// Private variant body widgets
+// ---------------------------------------------------------------------------
 
-  Widget _buildTitleVariant() {
+class _TitleVariantBody extends StatelessWidget {
+  const _TitleVariantBody({required this.title, this.trailing});
+
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         Text(title, style: AppTextStyles.cardTitle_32),
@@ -87,8 +105,21 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+}
 
-  Widget _buildBackWithMoreVariant() {
+class _BackWithMoreVariantBody extends StatelessWidget {
+  const _BackWithMoreVariantBody({
+    required this.title,
+    required this.onBack,
+    required this.onMore,
+  });
+
+  final String title;
+  final VoidCallback? onBack;
+  final VoidCallback? onMore;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         AppIconButton(
@@ -112,8 +143,21 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+}
 
-  Widget _buildCloseWithSaveVariant() {
+class _CloseWithSaveVariantBody extends StatelessWidget {
+  const _CloseWithSaveVariantBody({
+    required this.title,
+    required this.onClose,
+    required this.onSave,
+  });
+
+  final String title;
+  final VoidCallback? onClose;
+  final VoidCallback? onSave;
+
+  @override
+  Widget build(BuildContext context) {
     final saveColor = onSave == null ? AppColors.charcoal40 : AppColors.charcoal;
 
     return Row(

@@ -105,6 +105,29 @@ class _AppButtonState extends State<AppButton> {
 
     final opacity = _isDisabled ? 0.4 : (_isPressed ? 0.8 : 1.0);
 
+    // Design.md §4 inset-shadow 3-layer 시그니처: 상단 0.5px 하이라이트 레이어 추가.
+    // primary 버튼에만 적용; outlined 버튼에는 inset shadow 없음.
+    final innerWithHighlight = _isPrimary
+        ? Stack(
+            children: [
+              inner,
+              // 0.5px top highlight — Design.md inset 시그니처의 3번째 레이어
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  child: Container(
+                    height: 0.5,
+                    color: AppColors.insetHighlight,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : inner;
+
     final gestureDetector = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _setPressed(true),
@@ -114,7 +137,7 @@ class _AppButtonState extends State<AppButton> {
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 100),
         opacity: opacity,
-        child: inner,
+        child: innerWithHighlight,
       ),
     );
 
