@@ -1,30 +1,14 @@
-// This is a basic Flutter widget test.
+// Flutter 기본 템플릿 smoke test (MyApp / 카운터) 는 제거됨.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// 실제 위젯/플로우 테스트는 feature 별 위젯 테스트 파일에서 다룬다.
+// 이 파일은 pubspec 의 flutter_test 바인딩만 살려두기 위한 placeholder.
+//
+// 유닛 테스트 예시: test/cores/services/remote_config/app_version_checker_test.dart
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:gridset/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('placeholder', () {
+    expect(1 + 1, 2);
   });
 }

@@ -49,6 +49,7 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/splash.png
   fonts:
     - family: MoneygraphyPixel
       fonts:
