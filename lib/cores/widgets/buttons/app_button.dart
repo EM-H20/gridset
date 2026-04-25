@@ -77,7 +77,7 @@ class _AppButtonState extends State<AppButton> {
     final rowChildren = <Widget>[
       if (widget.icon != null) ...[
         Icon(widget.icon, color: textColor, size: 16.sp),
-        SizedBox(width: AppSpacing.sm.w),
+        SizedBox(width: AppSpacing.sm),
       ],
       Text(widget.label, style: textStyle),
     ];
@@ -94,8 +94,8 @@ class _AppButtonState extends State<AppButton> {
         boxShadow: shadow,
       ),
       padding: EdgeInsets.symmetric(
-        vertical: AppSpacing.md.h,
-        horizontal: AppSpacing.md.w,
+        vertical: AppSpacing.md,
+        horizontal: AppSpacing.md,
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: rowChildren),
     );
