@@ -31,7 +31,7 @@ class AppColorSwatch extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        SizedBox(height: AppSpacing.xs.h),
+        SizedBox(height: AppSpacing.xs),
         Text(
           name,
           style: AppTextStyles.caption_16

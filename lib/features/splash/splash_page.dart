@@ -79,7 +79,7 @@ class _SplashPageState extends State<SplashPage> {
           // FractionallySizedBox 가 size 자체를 키우므로 Padding 과 달리
           // 이미지 축소 부작용 없이 원하는 크기를 얻을 수 있다.
           child: Transform.translate(
-            offset: const Offset(AppSpacing.xl, 0),
+            offset: Offset(AppSpacing.xl, 0),
             child: FractionallySizedBox(
               widthFactor: 1.2,
               child: Image.asset('assets/splash.png', fit: BoxFit.contain),

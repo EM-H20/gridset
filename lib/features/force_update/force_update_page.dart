@@ -23,7 +23,7 @@ class ForceUpdatePage extends StatelessWidget {
           child: Center(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                  EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -33,14 +33,14 @@ class ForceUpdatePage extends StatelessWidget {
                         .copyWith(color: AppColors.charcoal),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                  SizedBox(height: AppSpacing.xl),
                   Text(
                     '원활한 사용을 위해\n최신 버전으로 업데이트해주세요.',
                     style: AppTextStyles.body_16
                         .copyWith(color: AppColors.charcoal82),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xxl),
+                  SizedBox(height: AppSpacing.xxl),
                   _UpdateButton(
                     onPressed: () => launchExternalUrl(AppUrls.storeUrl),
                   ),
@@ -65,7 +65,7 @@ class _UpdateButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: AppColors.charcoal,

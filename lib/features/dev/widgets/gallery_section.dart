@@ -1,6 +1,5 @@
 // lib/features/dev/widgets/gallery_section.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../cores/constants/app_colors.dart';
 import '../../../cores/constants/app_spacing.dart';
@@ -20,7 +19,7 @@ class GallerySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(AppSpacing.base.w),
+      padding: EdgeInsets.all(AppSpacing.base),
       decoration: BoxDecoration(
         color: AppColors.cream,
         border: Border.all(color: AppColors.lightCream),
@@ -30,10 +29,10 @@ class GallerySection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: AppTextStyles.cardTitle_32),
-          SizedBox(height: AppSpacing.base.h),
+          SizedBox(height: AppSpacing.base),
           for (var i = 0; i < children.length; i++) ...[
             children[i],
-            if (i < children.length - 1) SizedBox(height: AppSpacing.md.h),
+            if (i < children.length - 1) SizedBox(height: AppSpacing.md),
           ],
         ],
       ),

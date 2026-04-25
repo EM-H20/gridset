@@ -24,7 +24,7 @@ class DevGalleryPage extends StatelessWidget {
       backgroundColor: AppColors.cream,
       appBar: AppBar(
         leading: Padding(
-          padding: EdgeInsets.only(left: AppSpacing.sm.w),
+          padding: EdgeInsets.only(left: AppSpacing.sm),
           child: AppIconButton(
             icon: Icons.arrow_back_ios_new,
             onPressed: () => context.go(RoutePaths.home),
@@ -42,20 +42,20 @@ class DevGalleryPage extends StatelessWidget {
             onPressed: () => debugPrint('🛠️ Dev gallery more menu (v2)'),
             semanticLabel: '더보기',
           ),
-          SizedBox(width: AppSpacing.base.w),
+          SizedBox(width: AppSpacing.base),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(AppSpacing.base.w),
+          padding: EdgeInsets.all(AppSpacing.base),
           child: Column(
             children: [
               const _AppButtonSection(),
-              SizedBox(height: AppSpacing.xl.h),
+              SizedBox(height: AppSpacing.xl),
               const _AppIconButtonSection(),
-              SizedBox(height: AppSpacing.xl.h),
+              SizedBox(height: AppSpacing.xl),
               const _ColorsSection(),
-              SizedBox(height: AppSpacing.xl.h),
+              SizedBox(height: AppSpacing.xl),
               const _TypographySection(),
             ],
           ),
@@ -95,7 +95,7 @@ class _AppButtonSection extends StatelessWidget {
                 onPressed: () {},
               ),
             ),
-            SizedBox(width: AppSpacing.sm.w),
+            SizedBox(width: AppSpacing.sm),
             Expanded(
               child: AppButton.primary(
                 label: '빈 캔버스',
@@ -119,7 +119,7 @@ class _AppButtonSection extends StatelessWidget {
                 onPressed: () {},
               ),
             ),
-            SizedBox(width: AppSpacing.sm.w),
+            SizedBox(width: AppSpacing.sm),
             Expanded(
               child: AppButton.outlined(
                 label: '빈 캔버스',
@@ -188,8 +188,8 @@ class _ColorsSection extends StatelessWidget {
       title: 'Colors (AppColors)',
       children: [
         Wrap(
-          spacing: AppSpacing.md.w,
-          runSpacing: AppSpacing.md.h,
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
           children: _entries
               .map((e) => AppColorSwatch(name: e.$1, color: e.$2))
               .toList(),
@@ -252,7 +252,7 @@ class _ItemLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
+      padding: EdgeInsets.only(bottom: AppSpacing.xs),
       child: Text(
         text,
         style: AppTextStyles.caption_16

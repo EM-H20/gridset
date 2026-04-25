@@ -45,6 +45,11 @@ void main() {
     testWidgets('back 탭 시 /home 으로 이동한다', (tester) async {
       // 실제 GoRouter 셋업 — DevGalleryPage 의 onBack 이 context.go(RoutePaths.home) 를
       // 호출하므로 양쪽 라우트가 모두 등록되어야 한다.
+      tester.view.physicalSize = const Size(393, 852);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final router = GoRouter(
         initialLocation: RoutePaths.dev,
         routes: [

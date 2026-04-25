@@ -65,9 +65,9 @@ class AppDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: AppColors.lightCream, width: 1),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+      insetPadding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.xl,
           vertical: AppSpacing.lg,
         ),
@@ -80,13 +80,13 @@ class AppDialog extends StatelessWidget {
               style:
                   AppTextStyles.cardTitle_32.copyWith(color: AppColors.charcoal),
             ),
-            const SizedBox(height: AppSpacing.base),
+            SizedBox(height: AppSpacing.base),
             Text(
               message,
               style:
                   AppTextStyles.body_16.copyWith(color: AppColors.charcoal82),
             ),
-            const SizedBox(height: AppSpacing.base),
+            SizedBox(height: AppSpacing.base),
             Row(
               children: [
                 if (cancelText != null) ...[
@@ -99,7 +99,7 @@ class AppDialog extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  SizedBox(width: AppSpacing.sm),
                 ],
                 Expanded(
                   child: _PrimaryDarkButton(

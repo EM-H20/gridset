@@ -1,7 +1,6 @@
 // lib/features/home/home_page.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../cores/constants/app_colors.dart';
@@ -48,29 +47,29 @@ class HomePage extends StatelessWidget {
         ),
         actions: [
           const _DebugEntryButton(),
-          SizedBox(width: AppSpacing.base.w),
+          SizedBox(width: AppSpacing.base),
         ],
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.base.w),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: AppSpacing.xxxl.h),
+              SizedBox(height: AppSpacing.xxxl),
               Text(
                 '오늘은\n뭐 모아볼까?',
                 style: AppTextStyles.subHeading_48.copyWith(
                   color: AppColors.charcoal,
                 ),
               ),
-              SizedBox(height: AppSpacing.xxxl.h),
+              SizedBox(height: AppSpacing.xxxl),
               AppButton.primary(
                 label: '사진·영상 고르기',
                 icon: Icons.image,
                 onPressed: () => _showStubSnackBar(context),
               ),
-              SizedBox(height: AppSpacing.md.h),
+              SizedBox(height: AppSpacing.md),
               AppButton.outlined(
                 label: '비율 먼저 정하기',
                 onPressed: () => _showStubSnackBar(context),

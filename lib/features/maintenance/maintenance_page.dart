@@ -27,7 +27,7 @@ class MaintenancePage extends StatelessWidget {
           child: Center(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                  EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -37,7 +37,7 @@ class MaintenancePage extends StatelessWidget {
                         .copyWith(color: AppColors.charcoal),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                  SizedBox(height: AppSpacing.xl),
                   Text(
                     message,
                     style: AppTextStyles.body_16
