@@ -1,5 +1,6 @@
 // test/features/home/home_page_test.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gridset/cores/widgets/buttons/app_icon_button.dart';
 import 'package:gridset/features/home/home_page.dart';
@@ -8,11 +9,13 @@ import '../../test_helpers/widget_test_helpers.dart';
 
 void main() {
   group('HomePage', () {
-    testWidgets('상단에 Gridset 워드마크가 렌더링된다', (tester) async {
+    testWidgets('상단에 Gridset 워드마크 SVG 가 렌더링된다', (tester) async {
       await pumpPage(tester, const HomePage());
 
-      // AppTopBar.title 의 'Gridset' (워드마크). 테스트 페이지 내 다른 곳에 'Gridset' 없으므로 1건.
-      expect(find.text('Gridset'), findsOneWidget);
+      // AppBar 제거 후 _HomeHeader 안 SvgPicture 로 워드마크 표시.
+      expect(find.byType(SvgPicture), findsOneWidget);
+      // semanticsLabel 로 'Gridset' 노출 (스크린리더 접근성)
+      expect(find.bySemanticsLabel('Gridset'), findsOneWidget);
     });
 
     testWidgets('헤딩 "오늘은\\n뭐 모아볼까?" 가 렌더링된다', (tester) async {

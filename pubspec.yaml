@@ -50,6 +50,7 @@ flutter:
   assets:
     - .env
     - assets/splash.png
+    - assets/wordmark.svg
   fonts:
     - family: MoneygraphyPixel
       fonts:
