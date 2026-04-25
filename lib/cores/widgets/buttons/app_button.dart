@@ -29,8 +29,8 @@ class AppButton extends StatefulWidget {
     required this.label,
     required this.onPressed,
     this.isFullWidth = true,
-  })  : _variant = _AppButtonVariant.outlined,
-        icon = null;
+  }) : _variant = _AppButtonVariant.outlined,
+       icon = null;
 
   final String label;
   final VoidCallback? onPressed;
@@ -94,13 +94,10 @@ class _AppButtonState extends State<AppButton> {
         boxShadow: shadow,
       ),
       padding: EdgeInsets.symmetric(
-        vertical: AppSpacing.base.h,
-        horizontal: AppSpacing.base.w,
+        vertical: AppSpacing.md.h,
+        horizontal: AppSpacing.md.w,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: rowChildren,
-      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: rowChildren),
     );
 
     final opacity = _isDisabled ? 0.4 : (_isPressed ? 0.8 : 1.0);
@@ -117,7 +114,9 @@ class _AppButtonState extends State<AppButton> {
                 left: 0,
                 right: 0,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(6),
+                  ),
                   child: Container(
                     height: 0.5,
                     color: AppColors.insetHighlight,

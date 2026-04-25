@@ -44,9 +44,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Gridset',
-          style: AppTextStyles.cardTitle_32.copyWith(
-            color: AppColors.charcoal,
-          ),
+          style: AppTextStyles.cardTitle_32.copyWith(color: AppColors.charcoal),
         ),
         actions: [
           const _DebugEntryButton(),
