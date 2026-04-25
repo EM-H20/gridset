@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../cores/utils/custom_page_transitions.dart';
+import '../features/dev/dev_gallery_page.dart';
 import '../features/force_update/force_update_page.dart';
 import '../features/home/home_page.dart';
 import '../features/maintenance/maintenance_page.dart';
@@ -42,6 +43,14 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => buildInstantTransition(
         key: state.pageKey,
         child: const ForceUpdatePage(),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.dev,
+      pageBuilder: (context, state) => buildDirectionalSlide(
+        key: state.pageKey,
+        isForward: true,
+        child: const DevGalleryPage(),
       ),
     ),
   ],
