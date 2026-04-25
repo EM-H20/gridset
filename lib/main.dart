@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'cores/constants/app_colors.dart';
 import 'cores/services/remote_config/remote_config_service.dart';
 import 'firebase_options.dart';
 import 'routers/app_router.dart';
@@ -44,6 +45,18 @@ class GridsetApp extends StatelessWidget {
         title: 'Gridset',
         debugShowCheckedModeBanner: false,
         routerConfig: appRouter,
+        theme: ThemeData(
+          // AppBar 전역 기본값 — Design.md cream 테마, 무그림자.
+          // status bar padding 은 AppBar 가 자체 처리하므로 페이지 안에서 신경 안 씀.
+          appBarTheme: const AppBarTheme(
+            backgroundColor: AppColors.cream,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            centerTitle: false,
+          ),
+          scaffoldBackgroundColor: AppColors.cream,
+        ),
       ),
     );
   }
