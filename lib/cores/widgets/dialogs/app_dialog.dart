@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_spacing.dart';
 import '../../constants/app_text_style.dart';
+import '../buttons/app_button.dart';
 
 /// Lovable 스타일 풀 커스텀 다이얼로그 (Design.md 준수).
 ///
@@ -91,7 +92,7 @@ class AppDialog extends StatelessWidget {
               children: [
                 if (cancelText != null) ...[
                   Expanded(
-                    child: _GhostButton(
+                    child: AppButton.outlined(
                       label: cancelText!,
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -102,7 +103,7 @@ class AppDialog extends StatelessWidget {
                   SizedBox(width: AppSpacing.sm),
                 ],
                 Expanded(
-                  child: _PrimaryDarkButton(
+                  child: AppButton.primary(
                     label: confirmText,
                     onPressed: () {
                       Navigator.of(context).pop();
@@ -113,76 +114,6 @@ class AppDialog extends StatelessWidget {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PrimaryDarkButton extends StatelessWidget {
-  const _PrimaryDarkButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.charcoal,
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: const [
-            // 상단 하이라이트
-            BoxShadow(
-              color: AppColors.insetHighlight,
-              offset: Offset(0, 0.5),
-            ),
-            // 외곽 링
-            BoxShadow(color: AppColors.insetRing, spreadRadius: 0.5),
-            // 하단 드롭
-            BoxShadow(
-              color: AppColors.insetDrop,
-              offset: Offset(0, 1),
-              blurRadius: 2,
-            ),
-          ],
-        ),
-        child: Text(
-          label,
-          style:
-              AppTextStyles.button_16.copyWith(color: AppColors.offWhite),
-        ),
-      ),
-    );
-  }
-}
-
-class _GhostButton extends StatelessWidget {
-  const _GhostButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: AppColors.charcoal40, width: 1),
-        ),
-        child: Text(
-          label,
-          style:
-              AppTextStyles.button_16.copyWith(color: AppColors.charcoal),
         ),
       ),
     );

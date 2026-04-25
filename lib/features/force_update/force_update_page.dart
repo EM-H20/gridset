@@ -5,6 +5,7 @@ import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
 import '../../cores/constants/app_urls.dart';
 import '../../cores/utils/url_launcher_util.dart';
+import '../../cores/widgets/buttons/app_button.dart';
 
 /// 강제 업데이트 풀스크린.
 ///
@@ -41,52 +42,15 @@ class ForceUpdatePage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppSpacing.xxl),
-                  _UpdateButton(
+                  AppButton.primary(
+                    label: '업데이트',
+                    isFullWidth: false,
                     onPressed: () => launchExternalUrl(AppUrls.storeUrl),
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _UpdateButton extends StatelessWidget {
-  const _UpdateButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 48,
-        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.charcoal,
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.insetHighlight,
-              offset: Offset(0, 0.5),
-            ),
-            BoxShadow(color: AppColors.insetRing, spreadRadius: 0.5),
-            BoxShadow(
-              color: AppColors.insetDrop,
-              offset: Offset(0, 1),
-              blurRadius: 2,
-            ),
-          ],
-        ),
-        child: Text(
-          '업데이트',
-          style:
-              AppTextStyles.button_16.copyWith(color: AppColors.offWhite),
         ),
       ),
     );
