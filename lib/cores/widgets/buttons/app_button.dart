@@ -84,7 +84,9 @@ class _AppButtonState extends State<AppButton> {
 
     final inner = Container(
       width: widget.isFullWidth ? double.infinity : null,
-      alignment: Alignment.center,
+      // alignment is only set for full-width buttons; setting it on a shrink-wrap
+      // button causes Container to expand to fill the parent (defeating IntrinsicWidth).
+      alignment: widget.isFullWidth ? Alignment.center : null,
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(6),
@@ -103,7 +105,7 @@ class _AppButtonState extends State<AppButton> {
 
     final opacity = _isDisabled ? 0.4 : (_isPressed ? 0.8 : 1.0);
 
-    return GestureDetector(
+    final gestureDetector = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
@@ -115,5 +117,15 @@ class _AppButtonState extends State<AppButton> {
         child: inner,
       ),
     );
+
+    // IntrinsicWidth alone cannot loosen tight constraints from
+    // Column(crossAxisAlignment: stretch). Wrapping with Align first
+    // breaks the tight constraint so IntrinsicWidth can shrink-wrap.
+    return widget.isFullWidth
+        ? gestureDetector
+        : Align(
+            alignment: Alignment.centerLeft,
+            child: IntrinsicWidth(child: gestureDetector),
+          );
   }
 }

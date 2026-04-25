@@ -55,6 +55,30 @@ void main() {
       expect(tapped, isFalse);
       expect(find.text('비활성'), findsOneWidget);
     });
+
+    testWidgets('isFullWidth: false 면 Column(stretch) 안에서도 라벨 길이만큼 줄어든다',
+        (tester) async {
+      await pumpWithScreenUtil(
+        tester,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppButton.primary(
+              label: '짧음',
+              isFullWidth: false,
+              onPressed: () {},
+            ),
+          ],
+        ),
+      );
+
+      // 화면 전체 너비보다 작아야 한다 (라벨 길이만큼 shrink-wrap).
+      // IntrinsicWidth 의 실제 크기는 GestureDetector(가장 안쪽 렌더 위젯)로 측정한다.
+      final screenWidth =
+          tester.view.physicalSize.width / tester.view.devicePixelRatio;
+      final innerSize = tester.getSize(find.byType(GestureDetector));
+      expect(innerSize.width, lessThan(screenWidth));
+    });
   });
 
   group('AppButton.outlined', () {
