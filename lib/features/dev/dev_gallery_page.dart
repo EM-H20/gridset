@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
-import '../../cores/widgets/app_bars/app_top_bar.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../routers/route_paths.dart';
@@ -15,7 +14,7 @@ import 'widgets/gallery_section.dart';
 
 /// Dev 컴포넌트 갤러리 — kDebugMode 시 홈 우상단 버튼에서 진입.
 ///
-/// 5개 섹션: AppButton, AppIconButton, AppTopBar, Colors, Typography.
+/// 4개 섹션: AppButton, AppIconButton, Colors, Typography.
 class DevGalleryPage extends StatelessWidget {
   const DevGalleryPage({super.key});
 
@@ -23,10 +22,28 @@ class DevGalleryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cream,
-      appBar: AppTopBar.backWithMore(
-        title: 'Components',
-        onBack: () => context.go(RoutePaths.home),
-        onMore: () => debugPrint('🛠️ Dev gallery more menu (v2)'),
+      appBar: AppBar(
+        leading: Padding(
+          padding: EdgeInsets.only(left: AppSpacing.sm.w),
+          child: AppIconButton(
+            icon: Icons.arrow_back_ios_new,
+            onPressed: () => context.go(RoutePaths.home),
+            semanticLabel: '뒤로 가기',
+          ),
+        ),
+        title: Text(
+          'Components',
+          style: AppTextStyles.body_16.copyWith(color: AppColors.charcoal),
+        ),
+        centerTitle: true,
+        actions: [
+          AppIconButton(
+            icon: Icons.more_horiz,
+            onPressed: () => debugPrint('🛠️ Dev gallery more menu (v2)'),
+            semanticLabel: '더보기',
+          ),
+          SizedBox(width: AppSpacing.base.w),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -36,8 +53,6 @@ class DevGalleryPage extends StatelessWidget {
               const _AppButtonSection(),
               SizedBox(height: AppSpacing.xl.h),
               const _AppIconButtonSection(),
-              SizedBox(height: AppSpacing.xl.h),
-              const _AppTopBarSection(),
               SizedBox(height: AppSpacing.xl.h),
               const _ColorsSection(),
               SizedBox(height: AppSpacing.xl.h),
@@ -140,57 +155,6 @@ class _AppIconButtonSection extends StatelessWidget {
           icon: Icons.gps_fixed,
           onPressed: () {},
           semanticLabel: '센터',
-        ),
-      ],
-    );
-  }
-}
-
-class _AppTopBarSection extends StatelessWidget {
-  const _AppTopBarSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return GallerySection(
-      title: 'AppTopBar',
-      children: [
-        _ItemLabel('.title (with trailing)'),
-        SizedBox(
-          height: 64.h,
-          child: AppTopBar.title(
-            title: 'Gridset',
-            trailing: AppIconButton(
-              icon: Icons.gps_fixed,
-              onPressed: () {},
-            ),
-          ),
-        ),
-        _ItemLabel('.backWithMore'),
-        SizedBox(
-          height: 64.h,
-          child: AppTopBar.backWithMore(
-            title: '제안 1/3',
-            onBack: () {},
-            onMore: () {},
-          ),
-        ),
-        _ItemLabel('.closeWithSave (active)'),
-        SizedBox(
-          height: 64.h,
-          child: AppTopBar.closeWithSave(
-            title: 'Gridset',
-            onClose: () {},
-            onSave: () {},
-          ),
-        ),
-        _ItemLabel('.closeWithSave (save disabled)'),
-        SizedBox(
-          height: 64.h,
-          child: AppTopBar.closeWithSave(
-            title: 'Gridset',
-            onClose: () {},
-            onSave: null,
-          ),
         ),
       ],
     );

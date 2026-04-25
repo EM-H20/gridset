@@ -17,24 +17,18 @@ void main() {
       expect(find.text('Components'), findsOneWidget);
     });
 
-    testWidgets('5개 GallerySection 의 제목이 모두 렌더링된다', (tester) async {
+    testWidgets('4개 GallerySection 의 제목이 모두 렌더링된다', (tester) async {
       await pumpPage(tester, const DevGalleryPage());
 
-      // ListView 가 lazy 라 처음엔 첫 섹션만 보일 수 있어 스크롤 필요할 수 있음.
-      // 모든 섹션 제목을 찾기 위해 마지막 섹션이 보일 때까지 스크롤.
+      // SingleChildScrollView 안의 Column — 모든 섹션이 트리에 있지만
+      // 화면 밖 항목은 visible 하지 않을 수 있음. 스크롤로 끝까지 가서 lazy build 강제.
       expect(find.text('AppButton'), findsOneWidget);
-      // 나머지는 보이지 않아도 위젯 트리에는 존재할 수 있음 — pump 로 lazy build 강제
-      await tester.pump();
-
-      expect(find.text('AppButton'), findsOneWidget);
-      // AppIconButton, AppTopBar, Colors, Typography 는 스크롤 후 검증
       await tester.scrollUntilVisible(
         find.text('Typography (AppTextStyles)'),
         300,
       );
 
       expect(find.text('AppIconButton'), findsOneWidget);
-      expect(find.text('AppTopBar'), findsOneWidget);
       expect(find.text('Colors (AppColors)'), findsOneWidget);
       expect(find.text('Typography (AppTextStyles)'), findsOneWidget);
     });
@@ -79,8 +73,8 @@ void main() {
       // /dev 페이지에서 시작
       expect(find.text('Components'), findsOneWidget);
 
-      // back 아이콘 탭 — hitTestable() 로 실제 화면에 표시된 뒤로 가기 버튼만 타겟
-      await tester.tap(find.bySemanticsLabel('뒤로 가기').hitTestable());
+      // back 아이콘 탭 (AppBar leading 의 AppIconButton, semanticLabel '뒤로 가기')
+      await tester.tap(find.bySemanticsLabel('뒤로 가기'));
       await tester.pumpAndSettle();
 
       // /home 으로 이동
