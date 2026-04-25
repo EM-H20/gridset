@@ -1,7 +1,12 @@
 // test/features/dev/dev_gallery_page_test.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gridset/cores/widgets/app_bars/app_top_bar.dart';
 import 'package:gridset/cores/widgets/buttons/app_button.dart';
 import 'package:gridset/features/dev/dev_gallery_page.dart';
+import 'package:gridset/routers/route_paths.dart';
 
 import '../../test_helpers/widget_test_helpers.dart';
 
@@ -42,6 +47,46 @@ void main() {
       // AppButton 섹션에 정확한 인스턴스 수는 구현 디테일이라 강하게 묶지 않고,
       // 최소 5개 이상 존재함을 sanity-check.
       expect(find.byType(AppButton), findsAtLeastNWidgets(5));
+    });
+
+    testWidgets('back 탭 시 /home 으로 이동한다', (tester) async {
+      // 실제 GoRouter 셋업 — DevGalleryPage 의 onBack 이 context.go(RoutePaths.home) 를
+      // 호출하므로 양쪽 라우트가 모두 등록되어야 한다.
+      final router = GoRouter(
+        initialLocation: RoutePaths.dev,
+        routes: [
+          GoRoute(
+            path: RoutePaths.dev,
+            builder: (context, state) => const DevGalleryPage(),
+          ),
+          GoRoute(
+            path: RoutePaths.home,
+            builder: (context, state) => const Scaffold(
+              body: Center(child: Text('home-placeholder')),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(393, 852),
+          minTextAdapt: true,
+          builder: (context, _) => MaterialApp.router(routerConfig: router),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // /dev 페이지에서 시작
+      expect(find.text('Components'), findsOneWidget);
+
+      // back 아이콘 탭 — hitTestable() 로 실제 화면에 표시된 뒤로 가기 버튼만 타겟
+      await tester.tap(find.bySemanticsLabel('뒤로 가기').hitTestable());
+      await tester.pumpAndSettle();
+
+      // /home 으로 이동
+      expect(router.routerDelegate.currentConfiguration.uri.path, RoutePaths.home);
+      expect(find.text('home-placeholder'), findsOneWidget);
     });
   });
 }
