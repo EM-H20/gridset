@@ -31,12 +31,10 @@ class GallerySection extends StatelessWidget {
         children: [
           Text(title, style: AppTextStyles.cardTitle_32),
           SizedBox(height: AppSpacing.base.h),
-          ...children.map(
-            (c) => Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.md.h),
-              child: c,
-            ),
-          ),
+          for (var i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i < children.length - 1) SizedBox(height: AppSpacing.md.h),
+          ],
         ],
       ),
     );

@@ -29,6 +29,7 @@ Future<void> pumpPage(WidgetTester tester, Widget page) async {
   await tester.pumpWidget(
     ScreenUtilInit(
       designSize: const Size(393, 852),
+      minTextAdapt: true,
       builder: (context, _) => MaterialApp(home: page),
     ),
   );

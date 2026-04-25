@@ -10,7 +10,7 @@ import '../../cores/widgets/app_bars/app_top_bar.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../routers/route_paths.dart';
-import 'widgets/color_swatch.dart' as swatch;
+import 'widgets/color_swatch.dart';
 import 'widgets/gallery_section.dart';
 
 /// Dev 컴포넌트 갤러리 — kDebugMode 시 홈 우상단 버튼에서 진입.
@@ -33,23 +33,32 @@ class DevGalleryPage extends StatelessWidget {
           padding: EdgeInsets.all(AppSpacing.base.w),
           child: Column(
             children: [
-              _buildAppButtonSection(),
+              const _AppButtonSection(),
               SizedBox(height: AppSpacing.xl.h),
-              _buildAppIconButtonSection(),
+              const _AppIconButtonSection(),
               SizedBox(height: AppSpacing.xl.h),
-              _buildAppTopBarSection(),
+              const _AppTopBarSection(),
               SizedBox(height: AppSpacing.xl.h),
-              _buildColorsSection(),
+              const _ColorsSection(),
               SizedBox(height: AppSpacing.xl.h),
-              _buildTypographySection(),
+              const _TypographySection(),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildAppButtonSection() {
+// ---------------------------------------------------------------------------
+// Private section widgets
+// ---------------------------------------------------------------------------
+
+class _AppButtonSection extends StatelessWidget {
+  const _AppButtonSection();
+
+  @override
+  Widget build(BuildContext context) {
     return GallerySection(
       title: 'AppButton',
       children: [
@@ -110,8 +119,13 @@ class DevGalleryPage extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildAppIconButtonSection() {
+class _AppIconButtonSection extends StatelessWidget {
+  const _AppIconButtonSection();
+
+  @override
+  Widget build(BuildContext context) {
     return GallerySection(
       title: 'AppIconButton',
       children: [
@@ -130,8 +144,13 @@ class DevGalleryPage extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildAppTopBarSection() {
+class _AppTopBarSection extends StatelessWidget {
+  const _AppTopBarSection();
+
+  @override
+  Widget build(BuildContext context) {
     return GallerySection(
       title: 'AppTopBar',
       children: [
@@ -176,57 +195,68 @@ class DevGalleryPage extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildColorsSection() {
-    final entries = [
-      ('cream', AppColors.cream),
-      ('charcoal', AppColors.charcoal),
-      ('offWhite', AppColors.offWhite),
-      ('charcoal83', AppColors.charcoal83),
-      ('charcoal82', AppColors.charcoal82),
-      ('charcoal40', AppColors.charcoal40),
-      ('charcoal04', AppColors.charcoal04),
-      ('charcoal03', AppColors.charcoal03),
-      ('mutedGray', AppColors.mutedGray),
-      ('lightCream', AppColors.lightCream),
-      ('ringBlue', AppColors.ringBlue),
-      ('shadowFocus', AppColors.shadowFocus),
-      ('insetHighlight', AppColors.insetHighlight),
-      ('insetRing', AppColors.insetRing),
-      ('insetDrop', AppColors.insetDrop),
-    ];
+class _ColorsSection extends StatelessWidget {
+  const _ColorsSection();
 
+  static const _entries = [
+    ('cream', AppColors.cream),
+    ('charcoal', AppColors.charcoal),
+    ('offWhite', AppColors.offWhite),
+    ('charcoal83', AppColors.charcoal83),
+    ('charcoal82', AppColors.charcoal82),
+    ('charcoal40', AppColors.charcoal40),
+    ('charcoal04', AppColors.charcoal04),
+    ('charcoal03', AppColors.charcoal03),
+    ('mutedGray', AppColors.mutedGray),
+    ('lightCream', AppColors.lightCream),
+    ('ringBlue', AppColors.ringBlue),
+    ('shadowFocus', AppColors.shadowFocus),
+    ('insetHighlight', AppColors.insetHighlight),
+    ('insetRing', AppColors.insetRing),
+    ('insetDrop', AppColors.insetDrop),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return GallerySection(
       title: 'Colors (AppColors)',
       children: [
         Wrap(
           spacing: AppSpacing.md.w,
           runSpacing: AppSpacing.md.h,
-          children: entries
-              .map((e) => swatch.ColorSwatch(name: e.$1, color: e.$2))
+          children: _entries
+              .map((e) => AppColorSwatch(name: e.$1, color: e.$2))
               .toList(),
         ),
       ],
     );
   }
+}
 
-  Widget _buildTypographySection() {
-    final entries = [
-      ('displayHero_96', AppTextStyles.displayHero_96, 'Gridset'),
-      ('displayAlt_80', AppTextStyles.displayAlt_80, 'Gridset'),
-      ('sectionHeading_64', AppTextStyles.sectionHeading_64, '오늘은'),
-      ('subHeading_48', AppTextStyles.subHeading_48, '오늘은 뭐 만들까?'),
-      ('cardTitle_32', AppTextStyles.cardTitle_32, '이어서 만들기'),
-      ('bodyLarge_32', AppTextStyles.bodyLarge_32, '큰 본문 텍스트'),
-      ('body_16', AppTextStyles.body_16, '표준 본문 텍스트입니다'),
-      ('button_16', AppTextStyles.button_16, '버튼 라벨'),
-      ('link_16', AppTextStyles.link_16, '링크 텍스트'),
-      ('caption_16', AppTextStyles.caption_16, '캡션·메타데이터'),
-    ];
+class _TypographySection extends StatelessWidget {
+  const _TypographySection();
 
+  // AppTextStyles uses .sp (ScreenUtil getter) — cannot be const
+  static List<(String, TextStyle, String)> get _entries => [
+    ('displayHero_96', AppTextStyles.displayHero_96, 'Gridset'),
+    ('displayAlt_80', AppTextStyles.displayAlt_80, 'Gridset'),
+    ('sectionHeading_64', AppTextStyles.sectionHeading_64, '오늘은'),
+    ('subHeading_48', AppTextStyles.subHeading_48, '오늘은 뭐 만들까?'),
+    ('cardTitle_32', AppTextStyles.cardTitle_32, '이어서 만들기'),
+    ('bodyLarge_32', AppTextStyles.bodyLarge_32, '큰 본문 텍스트'),
+    ('body_16', AppTextStyles.body_16, '표준 본문 텍스트입니다'),
+    ('button_16', AppTextStyles.button_16, '버튼 라벨'),
+    ('link_16', AppTextStyles.link_16, '링크 텍스트'),
+    ('caption_16', AppTextStyles.caption_16, '캡션·메타데이터'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return GallerySection(
       title: 'Typography (AppTextStyles)',
-      children: entries.expand((e) {
+      children: _entries.expand((e) {
         return [
           _ItemLabel(e.$1),
           ConstrainedBox(
@@ -245,6 +275,10 @@ class DevGalleryPage extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Shared private helpers
+// ---------------------------------------------------------------------------
 
 /// 갤러리 항목 라벨 (라벨 + 위젯 본체 패턴).
 class _ItemLabel extends StatelessWidget {

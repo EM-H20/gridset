@@ -7,8 +7,8 @@ import '../../../cores/constants/app_spacing.dart';
 import '../../../cores/constants/app_text_style.dart';
 
 /// 색상 스왓치 — 64×64 색상 박스 + 이름 라벨.
-class ColorSwatch extends StatelessWidget {
-  const ColorSwatch({
+class AppColorSwatch extends StatelessWidget {
+  const AppColorSwatch({
     super.key,
     required this.color,
     required this.name,
