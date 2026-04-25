@@ -94,7 +94,7 @@ class _AppButtonState extends State<AppButton> {
         boxShadow: shadow,
       ),
       padding: EdgeInsets.symmetric(
-        vertical: AppSpacing.sm.h,
+        vertical: AppSpacing.base.h,
         horizontal: AppSpacing.base.w,
       ),
       child: Row(
