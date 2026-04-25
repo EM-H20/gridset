@@ -171,7 +171,7 @@ class _CloseWithSaveVariantBody extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.close, color: AppColors.charcoal, size: 18.sp),
+              Icon(Icons.close, color: AppColors.charcoal, size: 16.sp),
               SizedBox(width: AppSpacing.xs.w),
               Text(
                 '닫기',

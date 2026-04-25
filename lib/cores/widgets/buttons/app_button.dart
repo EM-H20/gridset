@@ -76,7 +76,7 @@ class _AppButtonState extends State<AppButton> {
 
     final rowChildren = <Widget>[
       if (widget.icon != null) ...[
-        Icon(widget.icon, color: textColor, size: 18.sp),
+        Icon(widget.icon, color: textColor, size: 16.sp),
         SizedBox(width: AppSpacing.sm.w),
       ],
       Text(widget.label, style: textStyle),
