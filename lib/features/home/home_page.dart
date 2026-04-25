@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
-import '../../cores/widgets/app_bars/app_top_bar.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../routers/route_paths.dart';
@@ -15,7 +14,7 @@ import '../../routers/route_paths.dart';
 /// 홈 화면 — Gridset 의 첫 화면.
 ///
 /// 구성:
-/// - 상단 AppTopBar.title (Gridset 워드마크 + 디버그 진입 버튼)
+/// - 상단 Material AppBar (Gridset 워드마크 + 우상단 디버그 진입 버튼)
 /// - 큰 헤딩 "오늘은\n뭐 모아볼까?"
 /// - 두 CTA: "사진·영상 고르기" (primary, with icon), "비율 먼저 정하기" (outlined)
 ///
@@ -42,9 +41,17 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cream,
-      appBar: AppTopBar.title(
-        title: 'Gridset',
-        trailing: const _DebugEntryButton(),
+      appBar: AppBar(
+        title: Text(
+          'Gridset',
+          style: AppTextStyles.cardTitle_32.copyWith(
+            color: AppColors.charcoal,
+          ),
+        ),
+        actions: [
+          const _DebugEntryButton(),
+          SizedBox(width: AppSpacing.base.w),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -55,8 +62,9 @@ class HomePage extends StatelessWidget {
               SizedBox(height: AppSpacing.xxxl.h),
               Text(
                 '오늘은\n뭐 모아볼까?',
-                style: AppTextStyles.subHeading_48
-                    .copyWith(color: AppColors.charcoal),
+                style: AppTextStyles.subHeading_48.copyWith(
+                  color: AppColors.charcoal,
+                ),
               ),
               SizedBox(height: AppSpacing.xxxl.h),
               AppButton.primary(
@@ -87,9 +95,7 @@ class _DebugEntryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppIconButton(
       icon: Icons.gps_fixed,
-      onPressed: kDebugMode
-          ? () => context.go(RoutePaths.dev)
-          : null,
+      onPressed: kDebugMode ? () => context.go(RoutePaths.dev) : null,
       semanticLabel: kDebugMode ? '개발 도구' : null,
     );
   }
