@@ -30,6 +30,8 @@ dependencies:
   connectivity_plus: ^6.1.0
   # 미디어 (사진/영상 갤러리 접근)
   photo_manager: ^3.9.0
+  # AssetEntityImage 위젯 (photo_manager 3.x 에서 별도 분리됨)
+  photo_manager_image_provider: ^2.1.1
   # 환경 변수 (.env)
   flutter_dotenv: ^6.0.0
   # Firebase (Remote Config 용)
