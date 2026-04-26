@@ -68,3 +68,4 @@ android/app/keystore/
 
 # Flutter DevTools 개인 설정 (확장 활성화 상태)
 devtools_options.yaml
+.issues/
