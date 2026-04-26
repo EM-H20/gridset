@@ -6,10 +6,11 @@ import '_n3_templates.dart';
 import '_n4_templates.dart';
 import '_n5_templates.dart';
 import '_n6_templates.dart';
+import '_n7_templates.dart';
 
 /// N → 큐레이션된 템플릿 list.
 ///
-/// Phase B 진행 중 — N=2,3,4,5,6 등록 완료. Task 6~8 에서 N=7..9 추가.
+/// Phase B 진행 중 — N=2..7 등록 완료. Task 7~8 에서 N=8,9 추가.
 /// 외부에서 Map/List 변경을 막기 위해 [UnmodifiableMapView]·[UnmodifiableListView] 로 노출.
 /// 무결성 invariant 는 templates_test 에서 검증.
 final Map<int, List<NamedTemplate>> kGridTemplates =
@@ -19,4 +20,5 @@ final Map<int, List<NamedTemplate>> kGridTemplates =
   4: UnmodifiableListView<NamedTemplate>(n4Templates),
   5: UnmodifiableListView<NamedTemplate>(n5Templates),
   6: UnmodifiableListView<NamedTemplate>(n6Templates),
+  7: UnmodifiableListView<NamedTemplate>(n7Templates),
 });
