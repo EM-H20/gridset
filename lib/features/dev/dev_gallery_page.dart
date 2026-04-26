@@ -6,15 +6,17 @@ import 'package:go_router/go_router.dart';
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
+import '../../cores/grid_suggestor/grid_suggestor.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../routers/route_paths.dart';
 import 'widgets/color_swatch.dart';
 import 'widgets/gallery_section.dart';
+import 'widgets/grid_template_preview.dart';
 
 /// Dev 컴포넌트 갤러리 — kDebugMode 시 홈 우상단 버튼에서 진입.
 ///
-/// 4개 섹션: AppButton, AppIconButton, Colors, Typography.
+/// 5개 섹션: AppButton, AppIconButton, Colors, Typography, Grid Templates.
 class DevGalleryPage extends StatelessWidget {
   const DevGalleryPage({super.key});
 
@@ -57,6 +59,8 @@ class DevGalleryPage extends StatelessWidget {
               const _ColorsSection(),
               SizedBox(height: AppSpacing.xl),
               const _TypographySection(),
+              SizedBox(height: AppSpacing.xl),
+              const _GridTemplatesSection(),
             ],
           ),
         ),
@@ -236,6 +240,120 @@ class _TypographySection extends StatelessWidget {
           ),
         ];
       }).toList(),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Grid Templates 섹션 (Phase C)
+// ---------------------------------------------------------------------------
+
+/// `kGridTemplates` 의 N=2..9 모든 큐레이션을 카드 sweep 으로 노출.
+///
+/// 캔버스 비율 토글 (4 preset) — 탭 시 setState 로 모든 카드 동시 리렌더.
+/// `custom` 은 v1 갤러리 제외 (사용자 입력 부담 + 큐레이션 검토 본질 아님).
+class _GridTemplatesSection extends StatefulWidget {
+  const _GridTemplatesSection();
+
+  @override
+  State<_GridTemplatesSection> createState() => _GridTemplatesSectionState();
+}
+
+class _GridTemplatesSectionState extends State<_GridTemplatesSection> {
+  // 토글 옵션 — 라벨 + CanvasRatio 인스턴스
+  static const _options = <(String, CanvasRatio)>[
+    ('9:16', CanvasRatio.portrait916()),
+    ('1:1', CanvasRatio.square()),
+    ('4:5', CanvasRatio.portrait45()),
+    ('16:9', CanvasRatio.landscape169()),
+  ];
+
+  CanvasRatio _canvas = const CanvasRatio.portrait916();
+
+  @override
+  Widget build(BuildContext context) {
+    final ns = kGridTemplates.keys.toList()..sort();
+    return GallerySection(
+      title: 'Grid Templates',
+      children: [
+        // 비율 토글 chip Wrap — 한 줄에 4개 (좁은 화면 자동 줄바꿈)
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final option in _options)
+              _RatioChip(
+                label: option.$1,
+                selected: _canvas == option.$2,
+                onTap: () => setState(() => _canvas = option.$2),
+              ),
+          ],
+        ),
+        for (final n in ns) ...[
+          _ItemLabel('N = $n (${kGridTemplates[n]!.length}개)'),
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: [
+              for (final t in kGridTemplates[n]!)
+                SizedBox(
+                  width: 120.w,
+                  child: GridTemplatePreview(
+                    template: t,
+                    canvas: _canvas,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// 비율 선택 chip — selected 면 charcoal 배경 + offWhite 텍스트, 아니면 outline.
+///
+/// 디자인 시스템 (Lovable cream/charcoal) 의 inset 그림자 패턴 단순화 — chip 사이즈
+/// 라 6px radius + 1px border 만으로 충분.
+class _RatioChip extends StatelessWidget {
+  const _RatioChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // 토글 버튼 시맨틱 — AppIconButton 과 동일 패턴 (Semantics(button: true)).
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.charcoal : AppColors.cream,
+            border: Border.all(color: AppColors.charcoal40),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.button_16.copyWith(
+              color: selected ? AppColors.offWhite : AppColors.charcoal,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -12,6 +12,13 @@
 .swiftpm/
 migrate_working_dir/
 
+# 로컬 테스트/디버그 출력 redirect 파일 (예: `flutter test > test_output.txt`)
+test_output.txt
+*_output.txt
+
+# 로컬 작업 리포트 (working memo)
+.report/
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -68,3 +75,4 @@ android/app/keystore/
 
 # Flutter DevTools 개인 설정 (확장 활성화 상태)
 devtools_options.yaml
+.issues/
