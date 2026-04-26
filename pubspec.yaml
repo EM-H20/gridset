@@ -28,6 +28,8 @@ dependencies:
   package_info_plus: ^9.0.0
   uuid: ^4.5.2
   connectivity_plus: ^6.1.0
+  # 미디어 (사진/영상 갤러리 접근)
+  photo_manager: ^3.9.0
   # 환경 변수 (.env)
   flutter_dotenv: ^6.0.0
   # Firebase (Remote Config 용)
