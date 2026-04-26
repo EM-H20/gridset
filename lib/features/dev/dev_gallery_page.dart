@@ -6,15 +6,17 @@ import 'package:go_router/go_router.dart';
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
+import '../../cores/grid_suggestor/grid_suggestor.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../routers/route_paths.dart';
 import 'widgets/color_swatch.dart';
 import 'widgets/gallery_section.dart';
+import 'widgets/grid_template_preview.dart';
 
 /// Dev 컴포넌트 갤러리 — kDebugMode 시 홈 우상단 버튼에서 진입.
 ///
-/// 4개 섹션: AppButton, AppIconButton, Colors, Typography.
+/// 5개 섹션: AppButton, AppIconButton, Colors, Typography, Grid Templates.
 class DevGalleryPage extends StatelessWidget {
   const DevGalleryPage({super.key});
 
@@ -57,6 +59,8 @@ class DevGalleryPage extends StatelessWidget {
               const _ColorsSection(),
               SizedBox(height: AppSpacing.xl),
               const _TypographySection(),
+              SizedBox(height: AppSpacing.xl),
+              const _GridTemplatesSection(),
             ],
           ),
         ),
@@ -236,6 +240,50 @@ class _TypographySection extends StatelessWidget {
           ),
         ];
       }).toList(),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Grid Templates 섹션 (Phase C)
+// ---------------------------------------------------------------------------
+
+/// `kGridTemplates` 의 N=2..9 모든 큐레이션을 카드 sweep 으로 노출.
+///
+/// Task 2 단계: 캔버스 비율 hardcoded `portrait916`.
+/// Task 3 에서 StatefulWidget 화 + 4 preset 토글 추가.
+class _GridTemplatesSection extends StatelessWidget {
+  const _GridTemplatesSection();
+
+  // dev/dev_gallery 표시 비율 — Task 3 에서 setState 로 변경 가능.
+  static const _canvas = CanvasRatio.portrait916();
+
+  @override
+  Widget build(BuildContext context) {
+    final ns = kGridTemplates.keys.toList()..sort();
+    return GallerySection(
+      title: 'Grid Templates',
+      children: [
+        for (final n in ns) ...[
+          _ItemLabel('N = $n (${kGridTemplates[n]!.length}개)'),
+          // 한 줄에 카드들을 Wrap — 좁은 화면도 자동 줄바꿈
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: [
+              for (final t in kGridTemplates[n]!)
+                SizedBox(
+                  // 한 카드당 폭 — 화면 폭의 약 1/3 가정 (393w 기준)
+                  width: 120.w,
+                  child: GridTemplatePreview(
+                    template: t,
+                    canvas: _canvas,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
