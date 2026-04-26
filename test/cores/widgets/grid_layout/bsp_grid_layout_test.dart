@@ -52,7 +52,7 @@ void main() {
           child: BspGridLayout(
             tree: tree,
             aspectRatio: 1.0,
-            cellBuilder: (_, __) => const SizedBox.shrink(),
+            cellBuilder: (_, _) => const SizedBox.shrink(),
           ),
         ),
       ));
