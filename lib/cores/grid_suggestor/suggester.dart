@@ -10,9 +10,9 @@ import 'validation/input_validator.dart';
 
 /// 자동 레이아웃 제안 — Phase A 진입점.
 ///
-/// 7-step pipeline (spec §4-1):
-/// 1) validate, 2) templateLookup, 3) cellGeometry, 4) matcher, 5) ranker,
-/// 6) pick top maxResults, 7) advance cursor.
+/// 7단계 파이프라인 (spec §4-1):
+/// 1) 입력 검증, 2) 템플릿 조회, 3) 셀 기하, 4) 매핑, 5) 랭킹·dedup,
+/// 6) top maxResults 선택, 7) cursor 갱신.
 ///
 /// PRD §9-2-1 step 5: 첫 호출 + 다른 제안 3회 = 최대 4 batch.
 /// nextCursor == null 이면 풀 소진 또는 PRD 한도 도달.
@@ -23,7 +23,7 @@ import 'validation/input_validator.dart';
   double Function(MediaItem item)? weightOf,
   int maxResults = 3,
 }) {
-  // Step 1: validate
+  // 1단계: 입력 검증
   validateSuggestInput(media: media, weightOf: weightOf);
 
   // cursor 초기화
@@ -38,7 +38,7 @@ import 'validation/input_validator.dart';
     return (suggestions: const [], nextCursor: null);
   }
 
-  // Step 2: templateLookup
+  // 2단계: 템플릿 조회
   final allTemplates = kGridTemplates[media.length] ?? const [];
   final available = allTemplates
       .where((t) => !activeCursor.shownTemplateNames.contains(t.name))
@@ -51,7 +51,7 @@ import 'validation/input_validator.dart';
   final mediaAspects = media.map((m) => m.aspectRatio).toList();
   final mediaWeights = media.map((m) => weightOf?.call(m) ?? 1.0).toList();
 
-  // Step 3-4: 각 템플릿마다 cellAspects + bestMapping
+  // 3·4단계: 각 템플릿마다 셀 종횡비 계산 + 최적 매핑 탐색
   final candidates = <GridSuggestion>[];
   for (final template in available) {
     final aspectsByCell = cellAspectRatios(template.tree, canvas);
@@ -78,10 +78,10 @@ import 'validation/input_validator.dart';
     ));
   }
 
-  // Step 5-6: rank + dedup + top maxResults
+  // 5·6단계: 랭킹 + dedup + top maxResults
   final ranked = rankCandidates(candidates).take(maxResults).toList();
 
-  // Step 7: cursor 갱신
+  // 7단계: cursor 갱신
   // PRD 한도(4 batch) 또는 다음 batch 에 더 이상 보여줄 템플릿이 없으면 null.
   final nextShown = {
     ...activeCursor.shownTemplateNames,

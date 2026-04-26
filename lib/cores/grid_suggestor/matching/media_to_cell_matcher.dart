@@ -61,5 +61,6 @@ MappingResult bestMapping({
   }
 
   recurse(<int>[], <int>{});
+  // n >= 1 이면 recurse 가 적어도 1회 완전 permutation 을 만들어 bestPerm 을 설정하므로 ! 안전.
   return MappingResult(mapping: bestPerm!, loss: bestLoss);
 }

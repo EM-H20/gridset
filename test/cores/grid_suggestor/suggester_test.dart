@@ -99,6 +99,17 @@ void main() {
         rOneWeight.suggestions.map((s) => s.loss).toList(),
       );
     });
+
+    test('maxResults ≥ 전체 템플릿 수 → 첫 호출에서 nextCursor null', () {
+      // N=2 템플릿 3개 + maxResults=3 → 첫 batch 가 모두 소진 → 즉시 nextCursor null.
+      // suggester.dart 의 nextAvailable lookahead 가 정확히 발동하는 경로 검증.
+      final r = suggest(
+        media: photos2Mixed,
+        canvas: const CanvasRatio.square(),
+      );
+      expect(r.suggestions, hasLength(3));
+      expect(r.nextCursor, isNull);
+    });
   });
 
   group('suggest() — 입력 검증', () {
