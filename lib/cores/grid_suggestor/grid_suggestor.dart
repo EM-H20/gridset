@@ -13,3 +13,5 @@ export 'models/media_item.dart' show MediaItem, MediaType;
 export 'models/canvas_ratio.dart' show CanvasRatio;
 export 'models/grid_node.dart' show GridNode, Split, Leaf, SplitAxis, cellIdsOf;
 export 'models/named_template.dart' show NamedTemplate;
+export 'models/grid_suggestion.dart' show GridSuggestion;
+export 'models/suggest_cursor.dart' show SuggestCursor;
