@@ -19,6 +19,9 @@ test_output.txt
 # 로컬 작업 리포트 (working memo)
 .report/
 
+# Superpowers brainstorming visual companion (mockups, server state)
+.superpowers/
+
 # IntelliJ related
 *.iml
 *.ipr
