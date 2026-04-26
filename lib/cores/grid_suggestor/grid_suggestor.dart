@@ -15,3 +15,4 @@ export 'models/grid_node.dart' show GridNode, Split, Leaf, SplitAxis, cellIdsOf;
 export 'models/named_template.dart' show NamedTemplate;
 export 'models/grid_suggestion.dart' show GridSuggestion;
 export 'models/suggest_cursor.dart' show SuggestCursor;
+export 'geometry/cell_geometry.dart' show cellBBoxes, cellAspectRatios, CellRect;
