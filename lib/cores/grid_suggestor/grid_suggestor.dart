@@ -19,3 +19,5 @@ export 'geometry/cell_geometry.dart' show cellBBoxes, cellAspectRatios, CellRect
 export 'matching/media_to_cell_matcher.dart' show bestMapping, MappingResult;
 export 'ranking/candidate_ranker.dart' show treeFingerprint, rankCandidates;
 export 'validation/input_validator.dart' show validateSuggestInput;
+export 'suggester.dart' show suggest;
+export 'templates/grid_templates.dart' show kGridTemplates;

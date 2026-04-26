@@ -170,12 +170,3 @@ void main() {
     });
   });
 }
-
-GridSuggestion _candidate({required String name, required double loss}) {
-  return GridSuggestion(
-    tree: const Leaf(0),
-    mediaByCellId: const {0: 'm1'},
-    loss: loss,
-    templateName: name,
-  );
-}
