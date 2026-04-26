@@ -17,3 +17,4 @@ export 'models/grid_suggestion.dart' show GridSuggestion;
 export 'models/suggest_cursor.dart' show SuggestCursor;
 export 'geometry/cell_geometry.dart' show cellBBoxes, cellAspectRatios, CellRect;
 export 'matching/media_to_cell_matcher.dart' show bestMapping, MappingResult;
+export 'ranking/candidate_ranker.dart' show treeFingerprint, rankCandidates;
