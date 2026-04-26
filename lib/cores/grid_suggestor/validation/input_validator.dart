@@ -6,7 +6,7 @@ import '../models/media_item.dart';
 /// - 2 ≤ N ≤ 9
 /// - 모든 aspectRatio 양의 유한값
 /// - 모든 id 유일
-/// - weightOf(item) ≥ 0
+/// - weightOf(item) 유한값 + ≥ 0 (NaN/Infinity 차단으로 정렬 안정성 보장)
 void validateSuggestInput({
   required List<MediaItem> media,
   required double Function(MediaItem item)? weightOf,
@@ -37,9 +37,10 @@ void validateSuggestInput({
   if (weightOf != null) {
     for (final m in media) {
       final w = weightOf(m);
-      if (w < 0) {
+      // NaN/Infinity 도 차단 — loss 계산/정렬 단계 비결정성 방지.
+      if (!w.isFinite || w < 0) {
         throw ArgumentError(
-          'weight must be non-negative, got $w for ${m.id}',
+          'weight must be finite non-negative, got $w for ${m.id}',
         );
       }
     }

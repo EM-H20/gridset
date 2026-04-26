@@ -47,9 +47,8 @@
 
 - [ ] **Step 0-1: Phase B 안정 확인**
 
-  Run:
+  Run (저장소 루트에서):
   ```bash
-  cd /Users/luca/workspace/Flutter_Project/gridset
   flutter analyze lib/cores/grid_suggestor/ test/cores/grid_suggestor/
   flutter test test/cores/grid_suggestor/
   ```

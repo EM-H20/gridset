@@ -92,5 +92,27 @@ void main() {
             (e) => e.message, 'message', contains('non-negative'))),
       );
     });
+
+    test('weightOf NaN 반환 → ArgumentError', () {
+      expect(
+        () => validateSuggestInput(
+          media: validMedia,
+          weightOf: (item) => double.nan,
+        ),
+        throwsA(isA<ArgumentError>().having(
+            (e) => e.message, 'message', contains('finite'))),
+      );
+    });
+
+    test('weightOf Infinity 반환 → ArgumentError', () {
+      expect(
+        () => validateSuggestInput(
+          media: validMedia,
+          weightOf: (item) => double.infinity,
+        ),
+        throwsA(isA<ArgumentError>().having(
+            (e) => e.message, 'message', contains('finite'))),
+      );
+    });
   });
 }

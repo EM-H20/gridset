@@ -328,22 +328,29 @@ class _RatioChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.charcoal : AppColors.cream,
-          border: Border.all(color: AppColors.charcoal40),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.button_16.copyWith(
-            color: selected ? AppColors.offWhite : AppColors.charcoal,
+    // 토글 버튼 시맨틱 — AppIconButton 과 동일 패턴 (Semantics(button: true)).
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.charcoal : AppColors.cream,
+            border: Border.all(color: AppColors.charcoal40),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.button_16.copyWith(
+              color: selected ? AppColors.offWhite : AppColors.charcoal,
+            ),
           ),
         ),
       ),

@@ -63,9 +63,8 @@
 
 - [ ] **Step 0-1: 코드 생성기 실행 환경 확인**
 
-  Run:
+  Run (저장소 루트에서):
   ```bash
-  cd /Users/luca/workspace/Flutter_Project/gridset
   flutter pub get
   ```
   Expected: dependencies 다 받아짐, 에러 없음.

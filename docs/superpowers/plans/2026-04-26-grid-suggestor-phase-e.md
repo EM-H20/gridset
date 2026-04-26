@@ -45,9 +45,8 @@
 
 - [ ] **Step 0-1: Phase C 안정 확인**
 
-  Run:
+  Run (저장소 루트에서):
   ```bash
-  cd /Users/luca/workspace/Flutter_Project/gridset
   flutter analyze lib/ test/
   flutter test
   ```
@@ -378,9 +377,8 @@ git commit -m "test : N=9 perf benchmark (10회 평균 < 300ms) (#1)"
 
 ### Step 4-1: coverage 측정
 
-Run:
+Run (저장소 루트에서):
 ```bash
-cd /Users/luca/workspace/Flutter_Project/gridset
 flutter test --coverage
 ```
 Expected: `coverage/lcov.info` 생성, 전체 test suite PASS.
