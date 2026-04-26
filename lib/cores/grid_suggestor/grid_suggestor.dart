@@ -12,3 +12,4 @@ library;
 export 'models/media_item.dart' show MediaItem, MediaType;
 export 'models/canvas_ratio.dart' show CanvasRatio;
 export 'models/grid_node.dart' show GridNode, Split, Leaf, SplitAxis, cellIdsOf;
+export 'models/named_template.dart' show NamedTemplate;
