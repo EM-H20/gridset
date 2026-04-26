@@ -16,6 +16,9 @@ migrate_working_dir/
 test_output.txt
 *_output.txt
 
+# 로컬 작업 리포트 (working memo)
+.report/
+
 # IntelliJ related
 *.iml
 *.ipr
