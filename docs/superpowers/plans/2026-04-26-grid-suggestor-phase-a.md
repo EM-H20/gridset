@@ -504,11 +504,13 @@
     final List<double> positions;
     final List<GridNode> children;
 
-    const Split({
+    // ⚠ Dart 한계: const constructor 의 assert 안에서 List.length 접근 불가.
+    // 따라서 Split 은 const 가 아닌 일반 생성자. 모든 NamedTemplate / kGridTemplates 도 final.
+    Split({
       required this.axis,
       required this.positions,
       required this.children,
-    })  : assert(positions.length >= 1, 'positions must not be empty'),
+    })  : assert(positions.isNotEmpty, 'positions must not be empty'),
           assert(
             children.length == positions.length + 1,
             'children.length must equal positions.length + 1',
@@ -624,10 +626,10 @@
         expect(
           () => NamedTemplate(
             name: 'broken',
-            tree: const Split(
+            tree: Split(  // Dart 한계: Split 은 non-const
               axis: SplitAxis.vertical,
-              positions: [0.5],
-              children: [Leaf(0), Leaf(1)],
+              positions: const [0.5],
+              children: const [Leaf(0), Leaf(1)],
             ),
             cellIds: const [0, 2], // 1 이어야 함
           ),
@@ -1692,33 +1694,34 @@
   /// N=2 큐레이션 — V½, H½, V60-40 3개.
   ///
   /// Phase A 의 stub 큐레이션. Phase B 에서 패턴 다양화·시각 iterate.
-  const n2Templates = <NamedTemplate>[
+  /// Dart 제약상 (Split non-const) 모든 템플릿은 final 로 초기화.
+  final n2Templates = <NamedTemplate>[
     NamedTemplate(
       name: 'n2_v_half',
       tree: Split(
         axis: SplitAxis.vertical,
-        positions: [0.5],
-        children: [Leaf(0), Leaf(1)],
+        positions: const [0.5],
+        children: const [Leaf(0), Leaf(1)],
       ),
-      cellIds: [0, 1],
+      cellIds: const [0, 1],
     ),
     NamedTemplate(
       name: 'n2_h_half',
       tree: Split(
         axis: SplitAxis.horizontal,
-        positions: [0.5],
-        children: [Leaf(0), Leaf(1)],
+        positions: const [0.5],
+        children: const [Leaf(0), Leaf(1)],
       ),
-      cellIds: [0, 1],
+      cellIds: const [0, 1],
     ),
     NamedTemplate(
       name: 'n2_v_60_40',
       tree: Split(
         axis: SplitAxis.vertical,
-        positions: [0.6],
-        children: [Leaf(0), Leaf(1)],
+        positions: const [0.6],
+        children: const [Leaf(0), Leaf(1)],
       ),
-      cellIds: [0, 1],
+      cellIds: const [0, 1],
     ),
   ];
   ```
@@ -1727,16 +1730,21 @@
 
   Create `lib/cores/grid_suggestor/templates/grid_templates.dart`:
   ```dart
+  import 'dart:collection';
+
   import '../models/named_template.dart';
   import '_n2_templates.dart';
 
   /// N → 큐레이션된 템플릿 list.
   ///
-  /// Phase A 는 N=2 만. Phase B 에서 N=3..9 추가.
+  /// Phase A 는 N=2 만. Phase B 에서 N=3..9 추가 시 새 N별 파일을 만들고
+  /// 이 Map 의 정적 선언에 추가.
+  /// 외부에서 Map/List 변경을 막기 위해 [UnmodifiableMapView]·[UnmodifiableListView] 로 노출.
   /// 무결성 invariant 는 templates_test 에서 검증.
-  const Map<int, List<NamedTemplate>> kGridTemplates = {
-    2: n2Templates,
-  };
+  final Map<int, List<NamedTemplate>> kGridTemplates =
+      UnmodifiableMapView<int, List<NamedTemplate>>({
+    2: UnmodifiableListView<NamedTemplate>(n2Templates),
+  });
   ```
 
 - [ ] **Step 11-3: N=2 무결성 테스트**
@@ -1891,18 +1899,25 @@
       ));
     }
 
-    // Step 5-6: rank + dedup + top maxResults
+    // 5·6단계: 랭킹 + dedup + top maxResults
     final ranked = rankCandidates(candidates).take(maxResults).toList();
 
-    // Step 7: cursor 갱신
-    final atLimit = activeCursor.batchIndex >= 3 || ranked.isEmpty;
+    // 7단계: cursor 갱신
+    // PRD 한도(4 batch) 또는 다음 batch 에 더 이상 보여줄 템플릿이 없으면 null.
+    final nextShown = {
+      ...activeCursor.shownTemplateNames,
+      ...ranked.map((s) => s.templateName),
+    };
+    final nextAvailable = allTemplates
+        .where((t) => !nextShown.contains(t.name))
+        .isNotEmpty;
+    final atLimit = activeCursor.batchIndex >= 3 ||
+        ranked.isEmpty ||
+        !nextAvailable;
     final nextCursor = atLimit
         ? null
         : SuggestCursor(
-            shownTemplateNames: {
-              ...activeCursor.shownTemplateNames,
-              ...ranked.map((s) => s.templateName),
-            },
+            shownTemplateNames: nextShown,
             batchIndex: activeCursor.batchIndex + 1,
           );
 

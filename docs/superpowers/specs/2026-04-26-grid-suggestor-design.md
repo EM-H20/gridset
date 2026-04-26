@@ -51,7 +51,7 @@ lib/cores/grid_suggestor/
 │   ├── grid_suggestion.dart           # 출력 모델 (Freezed)
 │   └── suggest_cursor.dart            # cursor 모델 (Freezed)
 ├── templates/
-│   ├── grid_templates.dart            # const Map<int, List<NamedTemplate>>
+│   ├── grid_templates.dart            # final Map<int, List<NamedTemplate>> (UnmodifiableMapView 로 노출)
 │   ├── _n2_templates.dart             # private — N=2 큐레이션
 │   ├── _n3_templates.dart
 │   ├── _n4_templates.dart
@@ -156,11 +156,14 @@ final class Split extends GridNode {
   final List<double> positions;   // 0..1, 오름차순, length >= 1
   final List<GridNode> children;  // length == positions.length + 1
 
-  const Split({
+  // ⚠ Dart 한계 (3.x 시점): const constructor 의 assert 안에서 List.length 접근 불가.
+  // 따라서 Split 은 const 가 아니다. 모든 인스턴스는 일반 (non-const) 생성.
+  // 이는 NamedTemplate / kGridTemplates 도 final 로 만드는 이유.
+  Split({
     required this.axis,
     required this.positions,
     required this.children,
-  })  : assert(positions.length >= 1),
+  })  : assert(positions.isNotEmpty),
         assert(children.length == positions.length + 1);
 }
 
@@ -368,13 +371,23 @@ String _fingerprint(GridNode node) {
 
 ```dart
 final picked = ranked.take(maxResults).toList();
-final nextCursor = (picked.isEmpty || cursor.batchIndex >= 3)
+final nextShown = {
+  ...cursor.shownTemplateNames,
+  ...picked.map((s) => s.templateName),
+};
+// 다음 호출에서 보여줄 템플릿이 남아있는지 lookahead.
+// 풀 소진 직후 호출은 빈 결과 + nextCursor null 로 빠지지만, 그 호출에서 cursor 가
+// 갱신되지 않아 호출부의 cursor 변수가 이전 batch 의 non-null 값으로 남는다.
+// 이번 batch 에서 풀이 소진되는 경계를 잡아 즉시 nextCursor=null 을 반환해야
+// 호출부가 한 번의 응답으로 종료를 인지할 수 있다.
+final nextAvailable = allTemplates
+    .where((t) => !nextShown.contains(t.name))
+    .isNotEmpty;
+final nextCursor =
+    (picked.isEmpty || cursor.batchIndex >= 3 || !nextAvailable)
     ? null  // 풀 소진 또는 PRD 한도 도달 (첫 호출 + 다른 제안 3회)
     : SuggestCursor(
-        shownTemplateNames: {
-          ...cursor.shownTemplateNames,
-          ...picked.map((s) => s.templateName),
-        },
+        shownTemplateNames: nextShown,
         batchIndex: cursor.batchIndex + 1,
       );
 ```
@@ -432,7 +445,7 @@ const _allowedPositions = <double>{
 
 ```dart
 // templates/_n4_templates.dart
-const _n4_grid2x2 = NamedTemplate(
+final _n4_grid2x2 = NamedTemplate(
   name: 'n4_grid2x2',
   tree: Split(
     axis: SplitAxis.horizontal,
@@ -445,7 +458,7 @@ const _n4_grid2x2 = NamedTemplate(
   cellIds: [0, 1, 2, 3],
 );
 
-const _n4_left1right3 = NamedTemplate(
+final _n4_left1right3 = NamedTemplate(
   name: 'n4_left1right3',
   tree: Split(
     axis: SplitAxis.vertical,
@@ -471,19 +484,23 @@ const _n4_left1right3 = NamedTemplate(
 
 ```dart
 // templates/grid_templates.dart
-const Map<int, List<NamedTemplate>> kGridTemplates = {
-  2: _n2Templates,
-  3: _n3Templates,
-  4: _n4Templates,
-  5: _n5Templates,
-  6: _n6Templates,
-  7: _n7Templates,
-  8: _n8Templates,
-  9: _n9Templates,
-};
+import 'dart:collection';
+
+final Map<int, List<NamedTemplate>> kGridTemplates =
+    UnmodifiableMapView<int, List<NamedTemplate>>({
+  2: UnmodifiableListView<NamedTemplate>(_n2Templates),
+  3: UnmodifiableListView<NamedTemplate>(_n3Templates),
+  4: UnmodifiableListView<NamedTemplate>(_n4Templates),
+  5: UnmodifiableListView<NamedTemplate>(_n5Templates),
+  6: UnmodifiableListView<NamedTemplate>(_n6Templates),
+  7: UnmodifiableListView<NamedTemplate>(_n7Templates),
+  8: UnmodifiableListView<NamedTemplate>(_n8Templates),
+  9: UnmodifiableListView<NamedTemplate>(_n9Templates),
+});
 ```
 
-각 `_nXTemplates` 는 해당 파일 상단의 const list. lazy 로딩 없음, 전부 `const`.
+각 `_nXTemplates` 는 해당 파일 상단의 `final` list. lazy 로딩 없음, 모듈 로드 시 1회 초기화.
+`Split` 이 const 불가능하므로 `const Map`/`const list` 가 모두 불가능 — `UnmodifiableMapView`/`UnmodifiableListView` 로 외부 mutation 방지.
 
 ### 5-5. /dev 갤러리 — "Grid Templates" 섹션 신규
 
