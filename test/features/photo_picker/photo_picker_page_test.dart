@@ -16,7 +16,7 @@ Widget _harness(Widget child, {required AppPermissionState perm}) {
       child: MaterialApp.router(
         routerConfig: GoRouter(
           initialLocation: '/',
-          routes: [GoRoute(path: '/', builder: (_, __) => child)],
+          routes: [GoRoute(path: '/', builder: (_, _) => child)],
         ),
       ),
     ),
