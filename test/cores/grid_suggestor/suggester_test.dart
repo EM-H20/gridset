@@ -123,4 +123,81 @@ void main() {
       );
     });
   });
+
+  group('suggest() — 골든 (각 N 의 첫 suggestion templateName 고정)', () {
+    // canvas 는 PRD 기본값 9:16 로 통일. 큐레이션 변경 시 골든도 의도적 갱신.
+    // (spec §6-3 Layer 4 — "큐레이션 의도 변경 시 골든도 의도적 업데이트")
+
+    test('N=2 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos2Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n2_h_half');
+    });
+
+    test('N=3 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos3Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n3_top1_bottom2');
+    });
+
+    test('N=4 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos4Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n4_left1_right3');
+    });
+
+    test('N=5 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos5Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n5_left2_right3');
+    });
+
+    test('N=6 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos6Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n6_left2_right4');
+    });
+
+    test('N=7 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos7Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n7_left3_right4');
+    });
+
+    test('N=8 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos8Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n8_grid2x4');
+    });
+
+    test('N=9 — first suggestion (현재 큐레이션)', () {
+      final r = suggest(
+        media: photos9Mixed,
+        canvas: const CanvasRatio.portrait916(),
+      );
+      expect(r.suggestions, isNotEmpty);
+      expect(r.suggestions.first.templateName, 'n9_top1_bottom8_2x4');
+    });
+  });
 }
