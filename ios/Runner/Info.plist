@@ -47,5 +47,7 @@
 	<true/>
 <key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>고른 사진으로 자동 그리드 레이아웃을 제안하기 위해 갤러리에 접근합니다.</string>
 </dict>
 </plist>
