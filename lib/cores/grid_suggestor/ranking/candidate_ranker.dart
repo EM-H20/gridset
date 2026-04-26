@@ -4,8 +4,9 @@ import '../models/grid_suggestion.dart';
 /// 트리 구조 fingerprint — fingerprint 동일하면 "구조적으로 비슷한 후보".
 ///
 /// PRD §9-2-1 step 4: "분할 방향 동일 + 선 위치 ±10% 이내면 중복".
-/// positions 를 0.1 단위 round 버킷으로 매핑 — 같은 0.1 구간 안에 떨어지는 위치는
-/// 동일 fingerprint 로 dedup. (예: 0.45·0.50·0.54 → 모두 0.5 버킷, 단 0.55 는 0.6 버킷.)
+/// positions 를 floor 기반 0.1 단위 버킷 `[k×0.1, (k+1)×0.1)` 으로 매핑 — 같은
+/// 버킷 안에 떨어지는 위치는 동일 fingerprint 로 dedup.
+/// (예: 0.50·0.54·0.55 → 모두 0.5 버킷, 0.45 → 0.4 버킷, 0.60 → 0.6 버킷.)
 String treeFingerprint(GridNode node) {
   final buf = StringBuffer();
   void visit(GridNode n) {
@@ -17,8 +18,8 @@ String treeFingerprint(GridNode node) {
         buf.write('@');
         for (var i = 0; i < positions.length; i++) {
           if (i > 0) buf.write(',');
-          // 0.1 단위 버킷팅 — floor 기반으로 ±5% 범위 동일 버킷에 할당
-          // (0.45~0.55) → 버킷 5 → 0.5, (0.55~0.65) → 버킷 6 → 0.6
+          // 0.1 단위 floor 버킷팅 — `[k×0.1, (k+1)×0.1)` 안의 위치를 동일 버킷으로 묶음.
+          // (예: [0.4, 0.5) → 0.4, [0.5, 0.6) → 0.5 (0.55 포함), [0.6, 0.7) → 0.6.)
           final bucket = (positions[i] * 10).floor() / 10;
           buf.write(bucket.toStringAsFixed(1));
         }

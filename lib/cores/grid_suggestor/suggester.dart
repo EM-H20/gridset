@@ -8,6 +8,12 @@ import 'ranking/candidate_ranker.dart';
 import 'templates/grid_templates.dart';
 import 'validation/input_validator.dart';
 
+/// PRD §9-2-1 step 5 — "첫 호출 + 다른 제안 3회 = 최대 4 batch" 한도.
+///
+/// `batchIndex` 는 0-indexed 이므로 0..3 범위가 정상,
+/// `>= _kMaxBatchCount` 면 stale cursor 로 간주.
+const int _kMaxBatchCount = 4;
+
 /// 자동 레이아웃 제안 — Phase A 진입점.
 ///
 /// 7단계 파이프라인 (spec §4-1):
@@ -34,7 +40,7 @@ import 'validation/input_validator.dart';
       );
 
   // PRD 한도 초과 cursor 방어
-  if (activeCursor.batchIndex >= 4) {
+  if (activeCursor.batchIndex >= _kMaxBatchCount) {
     return (suggestions: const [], nextCursor: null);
   }
 
@@ -90,7 +96,8 @@ import 'validation/input_validator.dart';
   final nextAvailable = allTemplates
       .where((t) => !nextShown.contains(t.name))
       .isNotEmpty;
-  final atLimit = activeCursor.batchIndex >= 3 ||
+  // batchIndex == _kMaxBatchCount - 1 이면 이번이 마지막 batch — nextCursor null.
+  final atLimit = activeCursor.batchIndex >= _kMaxBatchCount - 1 ||
       ranked.isEmpty ||
       !nextAvailable;
   final nextCursor = atLimit

@@ -4,6 +4,9 @@ import 'dart:math';
 ///
 /// `mapping[i]` = i 번째 셀에 배정된 미디어 인덱스.
 /// `loss` = log 비율 차이의 가중합 (낮을수록 좋음).
+///
+/// `mapping` 은 [bestMapping] 반환 시 [List.unmodifiable] 로 wrap 되어 외부 변조 차단.
+/// (`const` 빈 리스트 fallback 도 native immutable.)
 class MappingResult {
   final List<int> mapping;
   final double loss;
@@ -62,5 +65,6 @@ MappingResult bestMapping({
 
   recurse(<int>[], <int>{});
   // n >= 1 이면 recurse 가 적어도 1회 완전 permutation 을 만들어 bestPerm 을 설정하므로 ! 안전.
-  return MappingResult(mapping: bestPerm!, loss: bestLoss);
+  // List.unmodifiable 로 wrap — 외부 호출자가 .add/.removeAt 등으로 변조하지 못하게 차단.
+  return MappingResult(mapping: List.unmodifiable(bestPerm!), loss: bestLoss);
 }
