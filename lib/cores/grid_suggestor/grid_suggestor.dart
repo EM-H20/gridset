@@ -11,3 +11,4 @@ library;
 // 배럴 export 는 각 모델/함수 작성 후 채움 (Task 2~11).
 export 'models/media_item.dart' show MediaItem, MediaType;
 export 'models/canvas_ratio.dart' show CanvasRatio;
+export 'models/grid_node.dart' show GridNode, Split, Leaf, SplitAxis, cellIdsOf;
