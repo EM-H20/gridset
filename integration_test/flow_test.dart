@@ -35,15 +35,15 @@ Widget _buildHarness({
     routes: [
       GoRoute(
         path: '/canvas-picker',
-        builder: (_, __) => const CanvasPickerPage(),
+        builder: (_, _) => const CanvasPickerPage(),
       ),
       GoRoute(
         path: '/photo-picker',
-        builder: (_, __) => const PhotoPickerPage(),
+        builder: (_, _) => const PhotoPickerPage(),
       ),
       GoRoute(
         path: '/suggestion',
-        builder: (_, __) => const Scaffold(body: Text('suggestion-stub')),
+        builder: (_, _) => const Scaffold(body: Text('suggestion-stub')),
       ),
     ],
   );
@@ -54,7 +54,7 @@ Widget _buildHarness({
           child: ScreenUtilInit(
             designSize: _kDesignSize,
             minTextAdapt: true,
-            builder: (_, __) => MaterialApp.router(
+            builder: (_, _) => MaterialApp.router(
               routerConfig: router,
               debugShowCheckedModeBanner: false,
             ),
@@ -65,7 +65,7 @@ Widget _buildHarness({
           child: ScreenUtilInit(
             designSize: _kDesignSize,
             minTextAdapt: true,
-            builder: (_, __) => MaterialApp.router(
+            builder: (_, _) => MaterialApp.router(
               routerConfig: router,
               debugShowCheckedModeBanner: false,
             ),
