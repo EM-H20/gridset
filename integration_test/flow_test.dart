@@ -16,7 +16,6 @@ import 'package:gridset/cores/grid_suggestor/grid_suggestor.dart';
 import 'package:gridset/features/canvas_picker/canvas_picker_page.dart';
 import 'package:gridset/features/photo_picker/providers/permission_provider.dart';
 import 'package:gridset/features/photo_picker/photo_picker_page.dart';
-import 'package:gridset/flow/flow_selection.dart';
 import 'package:gridset/flow/flow_selection_provider.dart';
 import 'package:integration_test/integration_test.dart';
 
