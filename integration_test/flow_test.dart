@@ -142,7 +142,7 @@ void main() {
       // keepAlive: false 이므로 subscriber 없으면 dispose 되어 read 시 초기값 반환.
       final subscription = container.listen(
         flowSelectionNotifierProvider,
-        (_, __) {},
+        (_, _) {},
       );
       addTearDown(subscription.close);
 
