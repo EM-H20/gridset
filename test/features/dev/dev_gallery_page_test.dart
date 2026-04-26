@@ -56,6 +56,16 @@ void main() {
         // GridTemplatePreview 인스턴스가 31개 (kGridTemplates 합계) — sweep 회귀 안전망
         expect(find.byType(GridTemplatePreview), findsNWidgets(31));
       });
+
+      testWidgets('비율 chip 4개가 모두 노출된다 (9:16 / 1:1 / 4:5 / 16:9)', (tester) async {
+        await pumpPage(tester, const DevGalleryPage());
+        await tester.scrollUntilVisible(find.text('Grid Templates'), 300);
+
+        expect(find.text('9:16'), findsOneWidget);
+        expect(find.text('1:1'), findsOneWidget);
+        expect(find.text('4:5'), findsOneWidget);
+        expect(find.text('16:9'), findsOneWidget);
+      });
     });
 
     testWidgets('back 탭 시 /home 으로 이동한다', (tester) async {

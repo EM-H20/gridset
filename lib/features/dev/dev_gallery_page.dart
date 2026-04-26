@@ -250,13 +250,25 @@ class _TypographySection extends StatelessWidget {
 
 /// `kGridTemplates` 의 N=2..9 모든 큐레이션을 카드 sweep 으로 노출.
 ///
-/// Task 2 단계: 캔버스 비율 hardcoded `portrait916`.
-/// Task 3 에서 StatefulWidget 화 + 4 preset 토글 추가.
-class _GridTemplatesSection extends StatelessWidget {
+/// 캔버스 비율 토글 (4 preset) — 탭 시 setState 로 모든 카드 동시 리렌더.
+/// `custom` 은 v1 갤러리 제외 (사용자 입력 부담 + 큐레이션 검토 본질 아님).
+class _GridTemplatesSection extends StatefulWidget {
   const _GridTemplatesSection();
 
-  // dev/dev_gallery 표시 비율 — Task 3 에서 setState 로 변경 가능.
-  static const _canvas = CanvasRatio.portrait916();
+  @override
+  State<_GridTemplatesSection> createState() => _GridTemplatesSectionState();
+}
+
+class _GridTemplatesSectionState extends State<_GridTemplatesSection> {
+  // 토글 옵션 — 라벨 + CanvasRatio 인스턴스
+  static const _options = <(String, CanvasRatio)>[
+    ('9:16', CanvasRatio.portrait916()),
+    ('1:1', CanvasRatio.square()),
+    ('4:5', CanvasRatio.portrait45()),
+    ('16:9', CanvasRatio.landscape169()),
+  ];
+
+  CanvasRatio _canvas = const CanvasRatio.portrait916();
 
   @override
   Widget build(BuildContext context) {
@@ -264,16 +276,27 @@ class _GridTemplatesSection extends StatelessWidget {
     return GallerySection(
       title: 'Grid Templates',
       children: [
+        // 비율 토글 chip Wrap — 한 줄에 4개 (좁은 화면 자동 줄바꿈)
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final option in _options)
+              _RatioChip(
+                label: option.$1,
+                selected: _canvas == option.$2,
+                onTap: () => setState(() => _canvas = option.$2),
+              ),
+          ],
+        ),
         for (final n in ns) ...[
           _ItemLabel('N = $n (${kGridTemplates[n]!.length}개)'),
-          // 한 줄에 카드들을 Wrap — 좁은 화면도 자동 줄바꿈
           Wrap(
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: [
               for (final t in kGridTemplates[n]!)
                 SizedBox(
-                  // 한 카드당 폭 — 화면 폭의 약 1/3 가정 (393w 기준)
                   width: 120.w,
                   child: GridTemplatePreview(
                     template: t,
@@ -284,6 +307,46 @@ class _GridTemplatesSection extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// 비율 선택 chip — selected 면 charcoal 배경 + offWhite 텍스트, 아니면 outline.
+///
+/// 디자인 시스템 (Lovable cream/charcoal) 의 inset 그림자 패턴 단순화 — chip 사이즈
+/// 라 6px radius + 1px border 만으로 충분.
+class _RatioChip extends StatelessWidget {
+  const _RatioChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.charcoal : AppColors.cream,
+          border: Border.all(color: AppColors.charcoal40),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.button_16.copyWith(
+            color: selected ? AppColors.offWhite : AppColors.charcoal,
+          ),
+        ),
+      ),
     );
   }
 }
