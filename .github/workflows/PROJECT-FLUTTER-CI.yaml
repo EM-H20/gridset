@@ -76,8 +76,10 @@ env:
   ANALYZE_ONLY: "false"     # true: analyze만 실행 (빌드 스킵), false: analyze + 빌드
 
   # 🎯 빌드 대상 플랫폼 설정 (ANALYZE_ONLY=false일 때만 적용)
-  ENABLE_ANDROID: "true"    # Android 빌드 활성화 (true/false)
-  ENABLE_IOS: "true"        # iOS 빌드 활성화 (true/false)
+  # 현재는 analyze 만 게이트로 사용 — 실제 디바이스 빌드는 별도 워크플로/로컬에서 검증.
+  # (macos-26 + Xcode 26.0 / android gradle wrapper 환경 정합성 정리 후 재활성화 예정)
+  ENABLE_ANDROID: "false"   # Android 빌드 활성화 (true/false)
+  ENABLE_IOS: "false"       # iOS 빌드 활성화 (true/false)
 
   # 🔧 프로젝트별 설정
   FLUTTER_VERSION: "3.35.5"
