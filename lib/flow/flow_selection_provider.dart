@@ -23,6 +23,9 @@ class FlowSelectionNotifier extends _$FlowSelectionNotifier {
   void setCanvas(CanvasRatio ratio) =>
       state = state.copyWith(canvas: ratio);
 
+  /// 외부 list 참조를 그대로 저장하면 호출부가 같은 list 를 나중에 변경할 때
+  /// notifier 경계를 우회해 상태가 silently 바뀐다. List.unmodifiable 로 복사해
+  /// 방어한다.
   void setMedia(List<MediaItem> items) =>
-      state = state.copyWith(media: items);
+      state = state.copyWith(media: List.unmodifiable(items));
 }
