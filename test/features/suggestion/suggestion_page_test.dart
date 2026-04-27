@@ -44,4 +44,45 @@ void main() {
     expect(find.text('다른 제안'), findsOneWidget);
     expect(find.text('빈 캔버스'), findsOneWidget);
   });
+
+  // 회귀 방지 — spec(2026-04-27) §4-3-2 "PageView + Edge peek (인스타 캐러셀 식)":
+  // viewportFraction 0.92 + 가로 풀브리드 (외곽 horizontal padding 0).
+  testWidgets(
+    'PageView 가 viewportFraction 0.92 + 가로 풀브리드 (헤더/CTA 만 base padding)',
+    (tester) async {
+      const media = [
+        MediaItem(id: 'a', type: MediaType.photo, aspectRatio: 1.0),
+        MediaItem(id: 'b', type: MediaType.photo, aspectRatio: 1.5),
+        MediaItem(id: 'c', type: MediaType.photo, aspectRatio: 0.7),
+      ];
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(flowSelectionNotifierProvider.notifier).setMedia(media);
+
+      const screenSize = Size(393, 852);
+      tester.view.physicalSize = screenSize;
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: ScreenUtilInit(
+          designSize: screenSize,
+          child: const MaterialApp(home: SuggestionPage()),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final pageView = tester.widget<PageView>(find.byType(PageView));
+      expect(pageView.controller?.viewportFraction, 0.92,
+          reason: '인스타 캐러셀 식 viewportFraction');
+
+      // PageView 좌우가 화면 가장자리(0, 393)에 닿는지 확인 — 풀브리드.
+      final pageViewRect = tester.getRect(find.byType(PageView));
+      expect(pageViewRect.left, 0.0, reason: '좌측 풀브리드');
+      expect(pageViewRect.right, screenSize.width, reason: '우측 풀브리드');
+    },
+  );
 }

@@ -15,7 +15,7 @@
 | --- | --- | --- |
 | Picker 패키지 | `photo_manager` | AssetEntity 메타(AR/duration) 직접 추출, iOS limited 콜백, 자체 picker UI 로 cream 톤 일관 적용 |
 | 라우팅 구조 | 평탄 3 라우트 + `autoDispose` Riverpod flow state | 기존 라우터 컨벤션과 동일, 흐름 종료 시 자동 초기화, 화면 단위 테스트 용이 |
-| 후보 카드 layout | A2 — `PageView` + Peek (viewportFraction 0.7) | 결정 집중 + 양옆 카드 살짝 노출로 약한 비교, cream/픽셀 폰트 미감 정합 |
+| 후보 카드 layout | A2′ — `PageView` 가로 풀브리드 + 인스타 캐러셀 식 peek (viewportFraction 0.92) | 메인 카드를 화면 너비 거의 전체로 확장해 분할 패턴이 또렷이 보이게 하면서, 양 옆 4% peek 으로 carousel 임을 인지하도록 단서 유지. (초기 0.7 → Phase D 시각 검토 시 너무 좁다는 피드백으로 0.92 로 상향) |
 | 캔버스 비율 선택 UX | Full-screen route (`/canvas-picker`) | "비율 먼저 정하기" 는 흐름의 한 단계 — 라우트로 명시 |
 | 권한·에러 정책 | 5상태 분기 + `AppSnackbar` (icon SVG 톤 매핑) | iOS limited 차별화, 디자인 시스템 통일 |
 | `GridTemplatePreview` 승격 | C — shared BSP layout primitive (`cores/widgets/grid_layout/bsp_grid_layout.dart`) | 두 use case 공통은 셀 자리잡기뿐, cell 내용은 각자 |
@@ -274,15 +274,18 @@ Future<MediaItem?> assetToMediaItem(AssetEntity a) async {
 
 ```
 ┌─ AppBar (back arrow, "제안") ───────┐
-│ Padding 16                          │
+│ Padding 16 (header)                 │
 │   "N개 후보" cardTitle_32           │
 │   md 간격                           │
-│   PageView + Peek (viewportFraction │
-│     0.7, padEnds true)              │
+│ ─ Carousel (가로 풀브리드, padding 0) ─│
+│   PageView viewportFraction 0.92    │
+│     (양 옆 4% peek)                 │
 │   ─ 각 page: SuggestionCard ─       │
 │       BspGridLayout (canvas AR 적용)│
-│       각 cell: charcoal04 placeholder│
+│       각 cell: lightCream placeholder│
+│         + charcoal04 분할선         │
 │   md 간격                           │
+│ ─ Padding 16 (footer) ───────────── │
 │   Dots indicator (현재 page on)     │
 │   xl 간격                           │
 │ ─ CTA bar ──────────────────────── │
@@ -355,11 +358,14 @@ class SuggestionNotifier extends _$SuggestionNotifier {
 }
 ```
 
-#### 4-3-2. PageView + Peek
+#### 4-3-2. PageView + Edge peek (인스타 캐러셀 식)
 
 ```dart
-PageController(viewportFraction: 0.7, initialPage: 0)
+PageController(viewportFraction: 0.92, initialPage: 0)
 ```
+
+PageView 자체는 화면 좌우 가장자리까지 풀브리드(외곽 horizontal padding 없음).
+헤더 ("N개 후보") / dots / CTA bar 만 `EdgeInsets.symmetric(horizontal: AppSpacing.base)` 유지.
 
 Page change 시 `notifier.selectIndex(newIndex)`. CTA "이걸로" 는 `s.suggestions[s.selectedIndex]` 를 stub SnackBar 로 표시 (Editor 미구현):
 - `AppSnackbar.show(context, message: '에디터는 곧 준비됩니다', iconPath: 'assets/icons/icon_copy.svg')`
@@ -580,5 +586,5 @@ A 머지 → B → C → D 순서. A/B/C 사이 main rebase 가능.
 ## 12. Open Questions (구현 단계 결정)
 
 - **AssetEntity → MediaItem 변환 시 EXIF orientation** — `photo_manager` 가 자동 보정해주는지 측정 필요. 안 하면 변환 함수에 orientation rotate 분기 추가.
-- **PageView + Peek viewportFraction 0.7 vs 0.75 vs 0.8** — 픽셀 수 시뮬 필요. 일단 0.7 로 시작, Phase D 검토 시 조정.
+- ~~**PageView + Peek viewportFraction 0.7 vs 0.75 vs 0.8** — 픽셀 수 시뮬 필요. 일단 0.7 로 시작, Phase D 검토 시 조정.~~ → **결정**: viewportFraction 0.92 + carousel 가로 풀브리드 (인스타 캐러셀 식). 0.7 은 시각 검토 결과 카드가 좁아 분할 패턴이 잘 안 보였음.
 - **AssetTile thumbnail cache size** — 256x256 기본, 화면 dpr 에 따라 384/512 도 검토.

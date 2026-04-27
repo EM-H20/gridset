@@ -21,8 +21,9 @@ class SuggestionPage extends ConsumerStatefulWidget {
 }
 
 class _SuggestionPageState extends ConsumerState<SuggestionPage> {
+  // 인스타 캐러셀 식: 메인 카드 거의 풀폭(92%) + 양 옆 인접 카드 모서리만 살짝.
   final PageController _controller =
-      PageController(viewportFraction: 0.7, initialPage: 0);
+      PageController(viewportFraction: 0.92, initialPage: 0);
 
   @override
   void dispose() {
@@ -135,50 +136,67 @@ class _Loaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: AppSpacing.md),
-          Text(
-            '${state.suggestions.length}개 후보',
-            style: AppTextStyles.cardTitle_32.copyWith(color: AppColors.charcoal),
+    // PageView 만 화면 가장자리까지 풀브리드, 헤더/dots/CTA 는 base padding.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: AppSpacing.md),
+              Text(
+                '${state.suggestions.length}개 후보',
+                style: AppTextStyles.cardTitle_32
+                    .copyWith(color: AppColors.charcoal),
+              ),
+              SizedBox(height: AppSpacing.md),
+            ],
           ),
-          SizedBox(height: AppSpacing.md),
-          Expanded(
-            child: PageView.builder(
-              controller: controller,
-              onPageChanged: onPageChanged,
-              itemCount: state.suggestions.length,
-              itemBuilder: (_, i) {
-                final selected = i == state.selectedIndex;
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: selected ? 1.0 : 0.5,
-                    child: SuggestionCard(
-                      suggestion: state.suggestions[i],
-                      canvas: state.canvas,
-                    ),
+        ),
+        Expanded(
+          child: PageView.builder(
+            controller: controller,
+            onPageChanged: onPageChanged,
+            itemCount: state.suggestions.length,
+            itemBuilder: (_, i) {
+              final selected = i == state.selectedIndex;
+              return Padding(
+                // viewportFraction 92% 가 양 옆 4% gap 을 만든다 — 추가 gap 은
+                // xxs 만 줘서 카드끼리 너무 붙지 않게 한다.
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: selected ? 1.0 : 0.5,
+                  child: SuggestionCard(
+                    suggestion: state.suggestions[i],
+                    canvas: state.canvas,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-          SizedBox(height: AppSpacing.md),
-          SuggestionDots(
-            count: state.suggestions.length,
-            current: state.selectedIndex,
+        ),
+        SizedBox(height: AppSpacing.md),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SuggestionDots(
+                count: state.suggestions.length,
+                current: state.selectedIndex,
+              ),
+              SuggestionCtaBar(
+                onPick: onPick,
+                onMore: onMore,
+                onBlank: onBlank,
+              ),
+            ],
           ),
-          SuggestionCtaBar(
-            onPick: onPick,
-            onMore: onMore,
-            onBlank: onBlank,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
