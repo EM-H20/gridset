@@ -54,16 +54,25 @@ class HomePage extends ConsumerWidget {
                 label: '사진·영상 고르기',
                 icon: Icons.image,
                 onPressed: () {
-                  ref
-                      .read(flowSelectionNotifierProvider.notifier)
-                      .setCanvas(const CanvasRatio.portrait916());
+                  // 흐름 시작 — 이전 흐름의 media 잔재를 명시적으로 비우고
+                  // 디폴트 9:16 으로 진입한다.
+                  ref.read(flowSelectionNotifierProvider.notifier)
+                    ..setMedia(const [])
+                    ..setCanvas(const CanvasRatio.portrait916());
                   context.push(RoutePaths.photoPicker);
                 },
               ),
               SizedBox(height: AppSpacing.md),
               AppButton.outlined(
                 label: '비율 먼저 정하기',
-                onPressed: () => context.push(RoutePaths.canvasPicker),
+                onPressed: () {
+                  // 흐름 시작 — canvas 는 picker 에서 다시 정하지만,
+                  // media 잔재만은 미리 정리한다.
+                  ref
+                      .read(flowSelectionNotifierProvider.notifier)
+                      .setMedia(const []);
+                  context.push(RoutePaths.canvasPicker);
+                },
               ),
               SizedBox(height: AppSpacing.base),
             ],

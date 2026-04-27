@@ -137,14 +137,6 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // autoDispose provider 를 활성 상태로 유지하기 위해 listener 등록.
-      // keepAlive: false 이므로 subscriber 없으면 dispose 되어 read 시 초기값 반환.
-      final subscription = container.listen(
-        flowSelectionNotifierProvider,
-        (_, _) {},
-      );
-      addTearDown(subscription.close);
-
       // canvas-picker 초기 상태: 기본값 9:16
       expect(
         container.read(flowSelectionNotifierProvider).canvas,
