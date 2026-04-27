@@ -64,11 +64,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
               onPick: () => _stub(context, '에디터는 곧 준비됩니다'),
               onMore: state.cursor == null
                   ? null
-                  : () {
-                      ref
-                          .read(suggestionNotifierProvider.notifier)
-                          .loadMore();
-                    },
+                  : () => _onMore(context, ref),
               onBlank: () => _stub(context, '에디터는 곧 준비됩니다'),
             ),
         },
@@ -82,6 +78,26 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
       message: message,
       iconPath: 'assets/icons/icon_copy.svg',
     );
+  }
+
+  /// "다른 제안" 콜백 — loadMore 후 cursor 가 null 로 떨어지면 풀 소진을
+  /// 명시적으로 알려서 사용자가 "왜 다음부터 비활성?" 의문을 갖지 않게 한다.
+  ///
+  /// 풀 소진 케이스는 알고리즘이 다음 batch 후보가 없거나 PRD 한도(4 batch)에
+  /// 도달했을 때 발생. v1 의 작은 template 풀(N별 3~5개)에서는 1~2 batch 만에
+  /// 자주 발생 — 풀 보강은 후속 Phase D PR.
+  void _onMore(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(suggestionNotifierProvider.notifier);
+    notifier.loadMore();
+
+    final after = ref.read(suggestionNotifierProvider);
+    if (after is SuggestionStateLoaded && after.cursor == null) {
+      AppSnackbar.show(
+        context,
+        message: '이게 마지막 제안이에요',
+        iconPath: 'assets/icons/icon_copy.svg',
+      );
+    }
   }
 }
 

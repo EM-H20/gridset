@@ -85,4 +85,38 @@ void main() {
       expect(pageViewRect.right, screenSize.width, reason: '우측 풀브리드');
     },
   );
+
+  // 사용자가 "다른 제안" 버튼을 한 번 누른 뒤 비활성화 되는 케이스의 안내.
+  // 현재 알고리즘 풀이 작아 N 별로 1~2 batch 만에 cursor 가 null 로 떨어짐 —
+  // 사용자에게 "왜 더 이상 안 눌리지?" 의문을 남기지 않도록 SnackBar 로 명시.
+  testWidgets(
+    'loadMore 후 cursor null 전이 시 "이게 마지막 제안이에요" SnackBar',
+    (tester) async {
+      // N=3 (template 4개) — 첫 batch 3 + 두 번째 batch 1 → cursor null.
+      const media = [
+        MediaItem(id: 'a', type: MediaType.photo, aspectRatio: 1.0),
+        MediaItem(id: 'b', type: MediaType.photo, aspectRatio: 1.5),
+        MediaItem(id: 'c', type: MediaType.photo, aspectRatio: 0.7),
+      ];
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(flowSelectionNotifierProvider.notifier).setMedia(media);
+
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: ScreenUtilInit(
+          designSize: const Size(393, 852),
+          child: const MaterialApp(home: SuggestionPage()),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // "다른 제안" 한 번 tap → loadMore → cursor null → SnackBar.
+      await tester.tap(find.text('다른 제안'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('이게 마지막 제안이에요'), findsOneWidget);
+    },
+  );
 }
