@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gridset/cores/grid_suggestor/grid_suggestor.dart';
 import 'package:gridset/features/suggestion/suggestion_page.dart';
+import 'package:gridset/features/suggestion/widgets/suggestion_card.dart';
 import 'package:gridset/flow/flow_selection_provider.dart';
 
 void main() {
@@ -85,4 +86,105 @@ void main() {
       expect(pageViewRect.right, screenSize.width, reason: '우측 풀브리드');
     },
   );
+
+  // 사용자가 "다른 제안" 버튼을 한 번 누른 뒤 비활성화 되는 케이스의 안내.
+  // 현재 알고리즘 풀이 작아 N 별로 1~2 batch 만에 cursor 가 null 로 떨어짐 —
+  // 사용자에게 "왜 더 이상 안 눌리지?" 의문을 남기지 않도록 SnackBar 로 명시.
+  testWidgets(
+    'loadMore 후 cursor null 전이 시 "이게 마지막 제안이에요" SnackBar',
+    (tester) async {
+      // N=3 (template 4개) — 첫 batch 3 + 두 번째 batch 1 → cursor null.
+      const media = [
+        MediaItem(id: 'a', type: MediaType.photo, aspectRatio: 1.0),
+        MediaItem(id: 'b', type: MediaType.photo, aspectRatio: 1.5),
+        MediaItem(id: 'c', type: MediaType.photo, aspectRatio: 0.7),
+      ];
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(flowSelectionNotifierProvider.notifier).setMedia(media);
+
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: ScreenUtilInit(
+          designSize: const Size(393, 852),
+          child: const MaterialApp(home: SuggestionPage()),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // "다른 제안" 한 번 tap → loadMore → cursor null → SnackBar.
+      await tester.tap(find.text('다른 제안'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('이게 마지막 제안이에요'), findsOneWidget);
+    },
+  );
+
+  // 진단 — canvas-picker 에서 1:1 / 4:5 / 16:9 / 9:16 어떤 비율을 골라도
+  // SuggestionCard 의 BspGridLayout 이 사용자 선택대로 aspectRatio 를 적용해야.
+  // 회귀 시 모든 비율이 같은 모양으로 보이는 버그를 즉시 잡는다.
+  for (final ratio in const [
+    CanvasRatio.portrait916(),
+    CanvasRatio.square(),
+    CanvasRatio.portrait45(),
+    CanvasRatio.landscape169(),
+  ]) {
+    testWidgets(
+      'flow.canvas=${ratio.value} → BspGridLayout.aspectRatio 그대로 흐름',
+      (tester) async {
+        const media = [
+          MediaItem(id: 'a', type: MediaType.photo, aspectRatio: 1.0),
+          MediaItem(id: 'b', type: MediaType.photo, aspectRatio: 1.5),
+        ];
+
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        container
+            .read(flowSelectionNotifierProvider.notifier)
+            .setMedia(media);
+        container
+            .read(flowSelectionNotifierProvider.notifier)
+            .setCanvas(ratio);
+
+        await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: ScreenUtilInit(
+            designSize: const Size(393, 852),
+            child: const MaterialApp(home: SuggestionPage()),
+          ),
+        ));
+        await tester.pumpAndSettle();
+
+        final layouts = tester.widgetList<AspectRatio>(
+          find.descendant(
+            of: find.byType(SuggestionPage),
+            matching: find.byType(AspectRatio),
+          ),
+        );
+        // 카드마다 1개의 AspectRatio (BspGridLayout 안). 모두 사용자 선택값.
+        expect(layouts, isNotEmpty);
+        for (final ar in layouts) {
+          expect(ar.aspectRatio, ratio.value,
+              reason: 'flow.canvas=${ratio.value} 가 카드까지 그대로 흘러야 함');
+        }
+
+        // 실 렌더 사이즈 검증 — Widget property 가 set 되어도 부모가 양 axis
+        // tight 로 강제하면 AspectRatio 가 무력화돼 카드 외곽이 모두 viewport
+        // 사이즈로 stretch 되는 회귀 버그 (Center wrapping 으로 fix). 카드의
+        // actual width/height 비율이 사용자 선택값과 일치하는지 검증.
+        final renderRect = tester.getRect(find
+            .descendant(
+              of: find.byType(SuggestionCard).first,
+              matching: find.byType(AspectRatio),
+            )
+            .first);
+        final renderRatio = renderRect.width / renderRect.height;
+        expect(renderRatio, closeTo(ratio.value, 0.01),
+            reason: '카드 실 렌더 사이즈 비율이 사용자 선택값과 일치해야 함 — '
+                'PageView SliverFillViewport 가 자식을 강제 fit 하지 못하도록 '
+                'Center 로 감싸야 한다');
+      },
+    );
+  }
 }

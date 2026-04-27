@@ -5,8 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gridset/cores/grid_suggestor/grid_suggestor.dart';
 import 'package:gridset/cores/widgets/buttons/app_icon_button.dart';
 import 'package:gridset/features/home/home_page.dart';
+import 'package:gridset/features/suggestion/providers/selected_assets_provider.dart';
+import 'package:gridset/flow/flow_selection_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 const _kDesignSize = Size(393, 852);
 
@@ -79,6 +83,98 @@ void main() {
       // trailing 슬롯의 AppIconButton — 우상단
       expect(find.byType(AppIconButton), findsOneWidget);
       expect(find.byIcon(Icons.gps_fixed), findsOneWidget);
+    });
+
+    // 회귀 — flow.media + selectedAssets 가 keepAlive 라 home CTA 진입 시
+    // 둘 다 명시적 reset 필요. 한 쪽만 비우면 다음 흐름에서 잔재 lookup 발생.
+    testWidgets('CTA "사진·영상 고르기" 진입 시 flow.media + selectedAssets 둘 다 reset',
+        (tester) async {
+      _useDesignViewport(tester);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // 이전 흐름 상태 가짜로 채워놓기.
+      container
+          .read(flowSelectionNotifierProvider.notifier)
+          .setMedia(const [
+        MediaItem(id: 'old', type: MediaType.photo, aspectRatio: 1.0),
+      ]);
+      container
+          .read(selectedAssetsNotifierProvider.notifier)
+          .setAssets([
+        AssetEntity(id: 'old', typeInt: 1, width: 100, height: 100),
+      ]);
+
+      final router = GoRouter(initialLocation: '/', routes: [
+        GoRoute(path: '/', builder: (_, _) => const HomePage()),
+        GoRoute(
+            path: '/photo-picker',
+            builder: (_, _) => const Scaffold(body: Text('photo-picker-stub'))),
+        GoRoute(
+            path: '/canvas-picker',
+            builder: (_, _) =>
+                const Scaffold(body: Text('canvas-picker-stub'))),
+      ]);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: ScreenUtilInit(
+          designSize: _kDesignSize,
+          minTextAdapt: true,
+          builder: (context, _) => MaterialApp.router(routerConfig: router),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('사진·영상 고르기'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(flowSelectionNotifierProvider).media, isEmpty);
+      expect(container.read(selectedAssetsNotifierProvider), isEmpty,
+          reason: 'keepAlive 라 명시 reset 안 하면 잔재 lookup');
+    });
+
+    testWidgets('CTA "비율 먼저 정하기" 진입 시 flow.media + selectedAssets 둘 다 reset',
+        (tester) async {
+      _useDesignViewport(tester);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container
+          .read(flowSelectionNotifierProvider.notifier)
+          .setMedia(const [
+        MediaItem(id: 'old', type: MediaType.photo, aspectRatio: 1.0),
+      ]);
+      container
+          .read(selectedAssetsNotifierProvider.notifier)
+          .setAssets([
+        AssetEntity(id: 'old', typeInt: 1, width: 100, height: 100),
+      ]);
+
+      final router = GoRouter(initialLocation: '/', routes: [
+        GoRoute(path: '/', builder: (_, _) => const HomePage()),
+        GoRoute(
+            path: '/photo-picker',
+            builder: (_, _) => const Scaffold(body: Text('photo-picker-stub'))),
+        GoRoute(
+            path: '/canvas-picker',
+            builder: (_, _) =>
+                const Scaffold(body: Text('canvas-picker-stub'))),
+      ]);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: ScreenUtilInit(
+          designSize: _kDesignSize,
+          minTextAdapt: true,
+          builder: (context, _) => MaterialApp.router(routerConfig: router),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('비율 먼저 정하기'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(flowSelectionNotifierProvider).media, isEmpty);
+      expect(container.read(selectedAssetsNotifierProvider), isEmpty);
     });
   });
 }
