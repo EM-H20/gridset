@@ -12,7 +12,8 @@ import 'widgets/suggestion_card.dart';
 import 'widgets/suggestion_cta_bar.dart';
 import 'widgets/suggestion_dots.dart';
 
-/// 후보 화면 — PageView + Peek (viewportFraction 0.7) + dots + CTA bar.
+/// 후보 화면 — PageView 가로 풀브리드 + edge peek (viewportFraction 0.92) +
+/// dots + CTA bar (인스타 캐러셀 식).
 class SuggestionPage extends ConsumerStatefulWidget {
   const SuggestionPage({super.key});
 
