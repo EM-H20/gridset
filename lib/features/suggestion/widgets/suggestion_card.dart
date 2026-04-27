@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -160,8 +159,8 @@ class _VideoIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 24.w,
-      height: 24.w,
+      width: AppSpacing.xl,
+      height: AppSpacing.xl,
       decoration: const BoxDecoration(
         color: AppColors.charcoal40,
         shape: BoxShape.circle,
@@ -169,8 +168,8 @@ class _VideoIndicator extends StatelessWidget {
       alignment: Alignment.center,
       child: SvgPicture.asset(
         'assets/icons/icon_play.svg',
-        width: 16.w,
-        height: 16.w,
+        width: AppSpacing.base,
+        height: AppSpacing.base,
         colorFilter: const ColorFilter.mode(
           AppColors.offWhite,
           BlendMode.srcIn,
