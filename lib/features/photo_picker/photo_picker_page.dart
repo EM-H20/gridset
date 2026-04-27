@@ -9,6 +9,7 @@ import '../../cores/grid_suggestor/grid_suggestor.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../flow/flow_selection_provider.dart';
 import '../../routers/route_paths.dart';
+import '../suggestion/providers/selected_assets_provider.dart';
 import 'asset_to_media_item.dart';
 import 'providers/asset_selection_provider.dart';
 import 'providers/permission_provider.dart';
@@ -77,7 +78,14 @@ class PhotoPickerPage extends ConsumerWidget {
         .whereType<MediaItem>()
         .toList(growable: false);
 
+    // 페어 호출 — flowSelection 은 알고리즘 입력 (MediaItem),
+    // selectedAssets 는 렌더링 자원 (AssetEntity). 둘 중 하나만 호출되면
+    // suggestion 화면이 silent 실패 (모든 셀 placeholder).
     ref.read(flowSelectionNotifierProvider.notifier).setMedia(items);
+    ref
+        .read(selectedAssetsNotifierProvider.notifier)
+        .setAssets(assets);
+
     context.push(RoutePaths.suggestion);
   }
 }

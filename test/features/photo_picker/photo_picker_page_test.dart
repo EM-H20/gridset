@@ -3,9 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gridset/cores/grid_suggestor/grid_suggestor.dart';
 import 'package:gridset/cores/widgets/buttons/app_button.dart';
+import 'package:gridset/features/photo_picker/asset_to_media_item.dart';
 import 'package:gridset/features/photo_picker/photo_picker_page.dart';
 import 'package:gridset/features/photo_picker/providers/permission_provider.dart';
+import 'package:gridset/features/suggestion/providers/selected_assets_provider.dart';
+import 'package:gridset/flow/flow_selection_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 Widget _harness(Widget child, {required AppPermissionState perm}) {
   return ProviderScope(
@@ -77,5 +82,42 @@ void main() {
     );
     expect(nextBtn.onPressed, isNull,
         reason: '2장 미만 선택 시 다음 버튼 비활성');
+  });
+
+  // _onNext 자체는 위젯 내부 private 메서드라 직접 호출 불가.
+  // 두 setter 가 묶여 있어야 함을 contract-level 로 가드한다.
+  // (회귀 시 Task 5 의 mapped_thumb_test 가 실패해 영향 검증.)
+  test('flow.media + selectedAssets — 같은 source 로 함께 채워짐 (페어 contract)',
+      () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    final assets = [
+      AssetEntity(id: 'p1', typeInt: 1, width: 100, height: 100),
+      AssetEntity(id: 'p2', typeInt: 1, width: 100, height: 100),
+    ];
+
+    final items = assets
+        .map(assetToMediaItem)
+        .whereType<MediaItem>()
+        .toList(growable: false);
+
+    container.read(flowSelectionNotifierProvider.notifier).setMedia(items);
+    container
+        .read(selectedAssetsNotifierProvider.notifier)
+        .setAssets(assets);
+
+    expect(
+      container
+          .read(flowSelectionNotifierProvider)
+          .media
+          .map((m) => m.id)
+          .toList(),
+      ['p1', 'p2'],
+    );
+    expect(
+      container.read(selectedAssetsNotifierProvider).keys.toList(),
+      ['p1', 'p2'],
+    );
   });
 }
