@@ -1,11 +1,14 @@
 import 'package:go_router/go_router.dart';
 
 import '../cores/utils/custom_page_transitions.dart';
+import '../features/canvas_picker/canvas_picker_page.dart';
 import '../features/dev/dev_gallery_page.dart';
 import '../features/force_update/force_update_page.dart';
 import '../features/home/home_page.dart';
 import '../features/maintenance/maintenance_page.dart';
+import '../features/photo_picker/photo_picker_page.dart';
 import '../features/splash/splash_page.dart';
+import '../features/suggestion/suggestion_page.dart';
 import 'route_paths.dart';
 
 /// 앱 전역 GoRouter.
@@ -43,6 +46,30 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => buildInstantTransition(
         key: state.pageKey,
         child: const ForceUpdatePage(),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.canvasPicker,
+      pageBuilder: (context, state) => buildDirectionalSlide(
+        key: state.pageKey,
+        isForward: true,
+        child: const CanvasPickerPage(),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.photoPicker,
+      pageBuilder: (context, state) => buildDirectionalSlide(
+        key: state.pageKey,
+        isForward: true,
+        child: const PhotoPickerPage(),
+      ),
+    ),
+    GoRoute(
+      path: RoutePaths.suggestion,
+      pageBuilder: (context, state) => buildDirectionalSlide(
+        key: state.pageKey,
+        isForward: true,
+        child: const SuggestionPage(),
       ),
     ),
     GoRoute(

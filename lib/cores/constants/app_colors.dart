@@ -39,6 +39,11 @@ abstract class AppColors {
   /// Off-White — 다크 버튼 위 텍스트, subtle highlight
   static const Color offWhite = Color(0xFFFCFBF8);
 
+  /// Functional — 완전 투명. Material color 슬롯에서 페인트를 끄고 자체 BoxDecoration
+  /// 으로 painting 을 위임하고 싶을 때 (예: 오버레이 위 커스텀 컨테이너).
+  /// Colors.transparent 직접 사용 대신 토큰 경유.
+  static const Color transparent = Color(0x00000000);
+
   // ============================================
   // Neutral Scale (Charcoal Opacity)
   // ============================================

@@ -1,14 +1,17 @@
 // lib/features/home/home_page.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
+import '../../cores/grid_suggestor/grid_suggestor.dart';
 import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
+import '../../flow/flow_selection_provider.dart';
 import '../../routers/route_paths.dart';
 
 /// 홈 화면 — Gridset 의 첫 화면.
@@ -20,26 +23,13 @@ import '../../routers/route_paths.dart';
 /// - 하단 두 CTA: "사진·영상 고르기" (primary, with icon), "비율 먼저 정하기" (outlined)
 ///
 /// 디버그 진입 버튼은 kDebugMode 일 때만 /dev 라우트로 이동.
-/// CTA 는 화면 2 (suggestion) 미구현이라 SnackBar stub.
-class HomePage extends StatelessWidget {
+/// 두 CTA 는 실제 흐름으로 라우팅: 첫 번째는 기본 9:16 비율 설정 후 photo-picker,
+/// 두 번째는 canvas-picker (비율 선택) 로 이동.
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  void _showStubSnackBar(BuildContext context) {
-    debugPrint('🚧 CTA 동작 — 다음 화면(suggestion) 미구현');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.charcoal,
-        content: Text(
-          '다음 화면 준비 중',
-          style: AppTextStyles.body_16.copyWith(color: AppColors.offWhite),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: SafeArea(
@@ -63,12 +53,26 @@ class HomePage extends StatelessWidget {
               AppButton.primary(
                 label: '사진·영상 고르기',
                 icon: Icons.image,
-                onPressed: () => _showStubSnackBar(context),
+                onPressed: () {
+                  // 흐름 시작 — 이전 흐름의 media 잔재를 명시적으로 비우고
+                  // 디폴트 9:16 으로 진입한다.
+                  ref.read(flowSelectionNotifierProvider.notifier)
+                    ..setMedia(const [])
+                    ..setCanvas(const CanvasRatio.portrait916());
+                  context.push(RoutePaths.photoPicker);
+                },
               ),
               SizedBox(height: AppSpacing.md),
               AppButton.outlined(
                 label: '비율 먼저 정하기',
-                onPressed: () => _showStubSnackBar(context),
+                onPressed: () {
+                  // 흐름 시작 — canvas 는 picker 에서 다시 정하지만,
+                  // media 잔재만은 미리 정리한다.
+                  ref
+                      .read(flowSelectionNotifierProvider.notifier)
+                      .setMedia(const []);
+                  context.push(RoutePaths.canvasPicker);
+                },
               ),
               SizedBox(height: AppSpacing.base),
             ],

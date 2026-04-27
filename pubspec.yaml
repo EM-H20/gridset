@@ -28,6 +28,10 @@ dependencies:
   package_info_plus: ^9.0.0
   uuid: ^4.5.2
   connectivity_plus: ^6.1.0
+  # 미디어 (사진/영상 갤러리 접근)
+  photo_manager: ^3.9.0
+  # AssetEntityImage 위젯 (photo_manager 3.x 에서 별도 분리됨)
+  photo_manager_image_provider: ^2.1.1
   # 환경 변수 (.env)
   flutter_dotenv: ^6.0.0
   # Firebase (Remote Config 용)
@@ -35,6 +39,8 @@ dependencies:
   firebase_remote_config: ^6.3.0
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   # 코드 자동 생성
@@ -51,6 +57,8 @@ flutter:
     - .env
     - assets/splash.png
     - assets/wordmark.svg
+    - assets/icons/
+
   fonts:
     - family: MoneygraphyPixel
       fonts:
