@@ -40,13 +40,26 @@ class RepaintBoundaryImageCapturer implements ImageCapturer {
     final boundary = ctx.findRenderObject() as RenderRepaintBoundary;
     final size = boundary.size;
     final longEdgeDp = math.max(size.width, size.height);
-    final pixelRatio = longEdgePx / longEdgeDp;
-    final image = await boundary.toImage(pixelRatio: pixelRatio);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    if (byteData == null) {
-      throw StateError('ImageCapturer: PNG byteData == null');
+    if (longEdgeDp == 0) {
+      throw StateError('ImageCapturer: 위젯 사이즈가 0 — '
+          '레이아웃 완료 전 호출됨. pumpAndSettle 후 호출.');
     }
-    return byteData.buffer.asUint8List();
+    // pixelRatio < 1 인 대형 디바이스 (iPad 등) 에서 화질 저하 방지.
+    final pixelRatio =
+        (longEdgePx / longEdgeDp).clamp(1.0, double.infinity);
+
+    final image = await boundary.toImage(pixelRatio: pixelRatio);
+    try {
+      final byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        throw StateError('ImageCapturer: PNG byteData == null');
+      }
+      return byteData.buffer.asUint8List();
+    } finally {
+      // ui.Image 는 native 리소스 — 명시적 dispose 로 메모리 누수 차단.
+      image.dispose();
+    }
   }
 }
 
