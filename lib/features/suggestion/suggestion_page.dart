@@ -92,10 +92,11 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
 
     final after = ref.read(suggestionNotifierProvider);
     if (after is SuggestionStateLoaded && after.cursor == null) {
+      // copy 아이콘은 복사 행위 전용. 마지막 제안 안내는 기본 siren 톤.
       AppSnackbar.show(
         context,
         message: '이게 마지막 제안이에요',
-        iconPath: 'assets/icons/icon_copy.svg',
+        iconPath: 'assets/icons/icon_siren.svg',
       );
     }
   }
