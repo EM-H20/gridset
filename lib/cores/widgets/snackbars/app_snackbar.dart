@@ -35,6 +35,20 @@ import '../../constants/app_text_style.dart';
 ///   iconPath: 'assets/icons/icon_block.svg',
 /// );
 /// ```
+/// 카드 표준 radius (Design.md §"Border Radius Scale" Card = 12).
+const double _kCardRadius = 12;
+
+/// Focus shadow geometry (Design.md §6 Level 3).
+const Offset _kFocusShadowOffset = Offset(0, 4);
+const double _kFocusShadowBlur = 12;
+
+/// 슬라이드 + 페이드 진입/퇴장 시간.
+const Duration _kAnimationDuration = Duration(milliseconds: 300);
+
+/// 인라인 아이콘 — Design.md §4 의 18~20pt 영역. 픽셀 폰트 16배수 룰은 fontSize
+/// 에만 적용되므로 아이콘 크기는 별도 토큰 사용.
+const double _kIconSize = 20;
+
 class AppSnackbar {
   AppSnackbar._();
 
@@ -46,12 +60,18 @@ class AppSnackbar {
   /// [iconPath] SVG 아이콘 경로 — 기본 `icon_siren.svg` (경고/에러 톤).
   /// 정보성 메시지엔 `icon_copy.svg`, 차단/제한엔 `icon_block.svg` 권장.
   /// [duration] 표시 시간 (기본 3초).
+  ///
+  /// [context] 의 ancestor 에 [Overlay] 가 없으면 no-op (테스트 하네스 등에서
+  /// 안전하게 동작하도록 방어).
   static void show(
     BuildContext context, {
     required String message,
     String iconPath = 'assets/icons/icon_siren.svg',
     Duration duration = const Duration(seconds: 3),
   }) {
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null) return;
+
     dismiss();
 
     final entry = OverlayEntry(
@@ -64,7 +84,7 @@ class AppSnackbar {
     );
 
     _currentEntry = entry;
-    Overlay.of(context).insert(entry);
+    overlay.insert(entry);
   }
 
   /// 현재 표시 중인 스낵바 즉시 제거.
@@ -109,7 +129,7 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: _kAnimationDuration,
     );
 
     _slideAnimation = Tween<Offset>(
@@ -153,7 +173,7 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Material(
-            color: Colors.transparent,
+            color: AppColors.transparent,
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.base,
@@ -161,12 +181,12 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
               ),
               decoration: BoxDecoration(
                 color: AppColors.charcoal,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(_kCardRadius),
                 boxShadow: const [
                   BoxShadow(
                     color: AppColors.shadowFocus,
-                    offset: Offset(0, 4),
-                    blurRadius: 12,
+                    offset: _kFocusShadowOffset,
+                    blurRadius: _kFocusShadowBlur,
                   ),
                 ],
               ),
@@ -174,8 +194,8 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
                 children: [
                   SvgPicture.asset(
                     widget.iconPath,
-                    width: 20.w,
-                    height: 20.w,
+                    width: _kIconSize.w,
+                    height: _kIconSize.w,
                     colorFilter: const ColorFilter.mode(
                       AppColors.offWhite,
                       BlendMode.srcIn,
