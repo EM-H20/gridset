@@ -196,10 +196,16 @@ class _Loaded extends StatelessWidget {
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
                   opacity: selected ? 1.0 : 0.5,
-                  child: SuggestionCard(
-                    suggestion: state.suggestions[i],
-                    canvas: state.canvas,
-                    assetsById: assetsById,
+                  // PageView 의 SliverFillViewport 는 자식을 양 axis tight 로
+                  // 강제하므로 안쪽 BspGridLayout 의 AspectRatio 가 무력화된다.
+                  // Center 로 감싸 자식이 비율대로 자기 사이즈 결정 + 가운데 정렬.
+                  // 결과: 9:16 → 세로 길게, 1:1 → 정사각형, 16:9 → 가로 길게.
+                  child: Center(
+                    child: SuggestionCard(
+                      suggestion: state.suggestions[i],
+                      canvas: state.canvas,
+                      assetsById: assetsById,
+                    ),
                   ),
                 ),
               );

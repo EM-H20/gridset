@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gridset/cores/grid_suggestor/grid_suggestor.dart';
 import 'package:gridset/features/suggestion/suggestion_page.dart';
+import 'package:gridset/features/suggestion/widgets/suggestion_card.dart';
 import 'package:gridset/flow/flow_selection_provider.dart';
 
 void main() {
@@ -167,6 +168,22 @@ void main() {
           expect(ar.aspectRatio, ratio.value,
               reason: 'flow.canvas=${ratio.value} 가 카드까지 그대로 흘러야 함');
         }
+
+        // 실 렌더 사이즈 검증 — Widget property 가 set 되어도 부모가 양 axis
+        // tight 로 강제하면 AspectRatio 가 무력화돼 카드 외곽이 모두 viewport
+        // 사이즈로 stretch 되는 회귀 버그 (Center wrapping 으로 fix). 카드의
+        // actual width/height 비율이 사용자 선택값과 일치하는지 검증.
+        final renderRect = tester.getRect(find
+            .descendant(
+              of: find.byType(SuggestionCard).first,
+              matching: find.byType(AspectRatio),
+            )
+            .first);
+        final renderRatio = renderRect.width / renderRect.height;
+        expect(renderRatio, closeTo(ratio.value, 0.01),
+            reason: '카드 실 렌더 사이즈 비율이 사용자 선택값과 일치해야 함 — '
+                'PageView SliverFillViewport 가 자식을 강제 fit 하지 못하도록 '
+                'Center 로 감싸야 한다');
       },
     );
   }
