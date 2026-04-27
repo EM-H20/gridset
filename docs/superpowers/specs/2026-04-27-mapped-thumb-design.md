@@ -29,7 +29,7 @@
 
 ### 2-1. 컴포넌트 트리
 
-```
+```text
 photo_picker route (기존)
 └─ _onNext()
    ├─ flowSelectionProvider.setMedia(items: List<MediaItem>)   (기존)
@@ -60,7 +60,7 @@ suggestion route
 
 ### 2-3. 의존성 흐름
 
-```
+```text
 features/suggestion ──depends──▶ cores/grid_suggestor (배럴, 기존)
 features/suggestion ──depends──▶ photo_manager (신규 / suggestion 영역 한정)
 features/photo_picker ──depends──▶ flow + suggestion.providers.selected_assets  (신규)
@@ -71,7 +71,7 @@ flow/, cores/grid_suggestor/ ──┃ photo_manager 의존성 0 유지 (기존 
 
 ## 3. 데이터 흐름
 
-```
+```text
 [picker] AssetSelectionNotifier (List<AssetEntity>, keepAlive: false)
               │ _onNext()
               ▼

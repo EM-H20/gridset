@@ -17,6 +17,7 @@
 ## File Map
 
 ### 신규
+
 | 파일 | 책임 |
 |---|---|
 | `lib/features/suggestion/providers/selected_assets_provider.dart` (+ `.g.dart`) | `Map<String, AssetEntity>` 보존 (keepAlive) |
@@ -26,6 +27,7 @@
 | `test/features/suggestion/widgets/mapped_thumb_test.dart` | `_MappedThumb` 분기 6 케이스 |
 
 ### 수정
+
 | 파일 | 변경 |
 |---|---|
 | `lib/features/suggestion/widgets/suggestion_card.dart` | `assetsById` prop 추가, `cellBuilder` 를 `_MappedThumb` 로 교체. `_PlaceholderCell` 은 fallback 용 private 유지. `_MappedThumb` 는 inline private |
@@ -1167,7 +1169,7 @@ Expected: 약 line 578 부근 의 표 행.
 
 `| 사진 썸네일 매핑 (v1.x) | ... |` 행을 다음과 같이 갱신 (정확한 형식은 기존 표 칼럼 수에 맞춤):
 
-```
+```markdown
 | 사진 썸네일 매핑 (v1.x) ✓ | `BspGridLayout.cellBuilder` 를 `_PlaceholderCell` → `_MappedThumb(asset:...)` 로 swap. 자세한 spec: [`2026-04-27-mapped-thumb-design.md`](./2026-04-27-mapped-thumb-design.md) |
 ```
 
