@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -102,16 +104,32 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
     final suggestion = state.suggestions[state.selectedIndex];
     final assetsById = ref.read(selectedAssetsNotifierProvider);
 
-    bool modalShown = false;
+    // dialog 노출/닫힘 명시 추적 — `Navigator.of(context).canPop()` 만 보면
+    // SuggestionPage 자체가 pop 가능한 라우트라 dialog 닫힌 후에도 true 라
+    // pop 시 SuggestionPage 가 홈으로 튕겨 나가는 회귀 위험. 별 플래그로 추적.
+    var dialogOpen = false;
+    var cancelInFlight = false;
     double progress = 0;
     StateSetter? rebuildModal;
 
+    void closeDialogIfOpen() {
+      if (!dialogOpen) return;
+      if (!context.mounted) {
+        // 라우트가 이미 unmount — 플래그만 정리.
+        dialogOpen = false;
+        return;
+      }
+      dialogOpen = false;
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    }
+
     void showModalIfNotYet() {
-      if (modalShown) return;
+      if (dialogOpen) return;
       if (!context.mounted) return;
-      modalShown = true;
+      dialogOpen = true;
       // ignore: use_build_context_synchronously
-      // mounted 체크 직후 동기 호출 — async 갭 없음. 클로저 호출 시점마다 guard.
       showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -121,25 +139,32 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
             return ComposingModal(
               progress: progress,
               onCancel: () async {
-                await coordinator.cancel();
-                // dialogCtx 는 StatefulBuilder 빌더 인자 — dialog 가 살아있는
-                // 동안 항상 유효. mounted 체크는 canPop 이 대신 수행.
-                // ignore: use_build_context_synchronously
+                // 두 번 탭 race 차단 — 첫 호출 in-flight 동안 두 번째 무시.
+                if (cancelInFlight) return;
+                cancelInFlight = true;
+                // dialog 를 먼저 닫고 cancel 호출 — dialogCtx 의 mounted 가
+                // pop 후 false 가 되므로 async gap 전에 처리. ffmpeg cancel
+                // 자체는 fire-and-forget (사용자는 이미 dialog 닫혔다고 인지).
+                dialogOpen = false;
                 if (Navigator.of(dialogCtx).canPop()) {
-                  // ignore: use_build_context_synchronously
                   Navigator.of(dialogCtx).pop();
                 }
+                unawaited(coordinator.cancel());
               },
             );
           },
         ),
-      );
+      ).whenComplete(() {
+        // 사용자가 시스템 back 등으로 dialog 닫히는 경로도 추적.
+        dialogOpen = false;
+      });
     }
 
     // 200ms 후 modal 노출 — 사진 분기는 보통 그 전에 끝나 불필요한 modal 방지.
-    Future<void>.delayed(const Duration(milliseconds: 200), () {
-      if (!modalShown) showModalIfNotYet();
-    });
+    // unawaited: Future.delayed 의 Future 자체는 의도적 fire-and-forget.
+    unawaited(Future<void>.delayed(const Duration(milliseconds: 200), () {
+      showModalIfNotYet();
+    }));
 
     try {
       await coordinator.run(
@@ -149,27 +174,25 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
         assetsById: assetsById,
         onProgress: (p) {
           progress = p;
-          // modal 이 떠있으면 rebuild 로 progress bar 갱신.
           rebuildModal?.call(() {});
         },
       );
     } catch (e) {
       if (!context.mounted) return;
-      if (modalShown && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
+      closeDialogIfOpen();
+      // cancel 로 인한 throw 라면 사용자 의도이므로 SnackBar 무음. 그 외는 안내.
+      if (!cancelInFlight) {
+        AppSnackbar.show(
+          context,
+          message: '영상 만들기에 실패했어요',
+          iconPath: 'assets/icons/icon_siren.svg',
+        );
       }
-      AppSnackbar.show(
-        context,
-        message: '영상 만들기에 실패했어요',
-        iconPath: 'assets/icons/icon_siren.svg',
-      );
       return;
     }
 
     if (!context.mounted) return;
-    if (modalShown && Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
+    closeDialogIfOpen();
   }
 
   /// "다른 제안" 콜백 — loadMore 후 cursor 가 null 로 떨어지면 풀 소진을

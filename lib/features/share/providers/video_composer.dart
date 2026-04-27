@@ -136,9 +136,14 @@ class FfmpegVideoComposer implements VideoComposer {
   }
 
   Future<void> _cleanupTempFile(String path) async {
-    final f = File(path);
-    if (await f.exists()) {
-      await f.delete();
+    try {
+      final f = File(path);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    } catch (_) {
+      // cleanup 실패는 무음 — OS cache 자동 정리에 위임. cancel/onCancel
+      // 으로 throw 가 전파되어 unhandled exception 되는 것 방지.
     }
   }
 }
