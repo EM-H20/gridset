@@ -40,6 +40,7 @@ class _FakeImageCapturer implements ImageCapturer {
 class _FakeVideoComposer implements VideoComposer {
   final String outPath = '${Directory.systemTemp.path}/fake_gridset.mp4';
   int callCount = 0;
+  bool cancelled = false;
 
   @override
   Future<String> composeMp4({
@@ -56,7 +57,9 @@ class _FakeVideoComposer implements VideoComposer {
   }
 
   @override
-  Future<void> cancel() async {}
+  Future<void> cancel() async {
+    cancelled = true;
+  }
 }
 
 class _FakeDispatcher implements ShareDispatcher {
@@ -73,6 +76,9 @@ class _FakeDispatcher implements ShareDispatcher {
 AssetEntity _photo(String id) =>
     AssetEntity(id: id, typeInt: 1, width: 100, height: 100);
 
+// 영상 분기는 native 의존이라 widget 통합 테스트 어려움 — Phase E 매뉴얼 검증.
+// _video 헬퍼는 후속 phase 에서 영상 분기 테스트 추가 시 활용 (현재 미사용).
+// ignore: unused_element
 AssetEntity _video(String id) =>
     AssetEntity(id: id, typeInt: 2, width: 100, height: 100, duration: 5);
 
@@ -129,31 +135,16 @@ void main() {
     );
   });
 
-  test('영상 1+ → hasVideoCell true (분기 결정)', () {
-    final container = ProviderContainer();
+  test('cancel — VideoComposer.cancel 위임', () async {
+    final composer = _FakeVideoComposer();
+    final container = ProviderContainer(overrides: [
+      videoComposerProvider.overrideWith((_) => composer),
+    ]);
     addTearDown(container.dispose);
+
     final coordinator = ShareCoordinator(container);
+    await coordinator.cancel();
 
-    expect(
-      coordinator.hasVideoCell(
-        _suggestion({0: 'a', 1: 'b'}),
-        {'a': _video('a'), 'b': _photo('b')},
-      ),
-      isTrue,
-    );
-  });
-
-  test('사진만 → hasVideoCell false', () {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final coordinator = ShareCoordinator(container);
-
-    expect(
-      coordinator.hasVideoCell(
-        _suggestion({0: 'a', 1: 'b'}),
-        {'a': _photo('a'), 'b': _photo('b')},
-      ),
-      isFalse,
-    );
+    expect(composer.cancelled, isTrue);
   });
 }

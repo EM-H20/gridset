@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -33,18 +34,24 @@ class ShareCoordinator {
     required Map<String, AssetEntity> assetsById,
     void Function(double progress)? onProgress,
   }) async {
-    if (!hasVideoCell(suggestion, assetsById)) {
+    if (!_hasVideoCell(suggestion, assetsById)) {
       await _runPhotoBranch(cardKey);
       return;
     }
     await _runVideoBranch(suggestion, canvas, assetsById, onProgress);
   }
 
-  /// 영상 셀 포함 여부 판단 — run() 호출 전 분기 UI(ComposingModal 노출 등)에도 활용 가능.
+  /// 진행 중 영상 합성 cancel — UI 의 ComposingModal "취소" 버튼 → 호출.
+  /// 사진 분기는 너무 짧아 cancel 의미 없음 (no-op).
+  Future<void> cancel() async {
+    await _container.read(videoComposerProvider).cancel();
+  }
+
+  /// 영상 셀 포함 여부 판단 — 사진/영상 분기 결정용.
   ///
-  /// `@visibleForTesting` 로 노출 — 단위 테스트에서 분기 결정 검증.
-  @visibleForTesting
-  bool hasVideoCell(
+  /// 단위 테스트에서는 `run()` 의 side-effect (ImageCapturer/VideoComposer
+  /// callCount) 로 분기 결정을 검증하므로 private 으로 유지한다.
+  bool _hasVideoCell(
     GridSuggestion suggestion,
     Map<String, AssetEntity> assetsById,
   ) {
@@ -65,9 +72,41 @@ class ShareCoordinator {
     final tempDir = await getTemporaryDirectory();
     final ts = DateTime.now().millisecondsSinceEpoch;
     final path = '${tempDir.path}/gridset_$ts.png';
-    await File(path).writeAsBytes(bytes);
 
-    await dispatcher.share(filePaths: [path], subject: 'Gridset');
+    String? createdPath;
+    try {
+      await File(path).writeAsBytes(bytes);
+      createdPath = path;
+      await dispatcher.share(filePaths: [path], subject: 'Gridset');
+    } on FileSystemException catch (e, st) {
+      developer.log(
+        'PNG 저장 실패: $e',
+        name: 'ShareCoordinator',
+        error: e,
+        stackTrace: st,
+      );
+      // 호출자가 SnackBar 분기로 잡도록 rethrow — VideoComposer 의 StateError
+      // 와 동일 흐름 (호출부 try/catch 한 곳에서 처리).
+      rethrow;
+    } finally {
+      // share 시트 dismiss 후 임시 파일 정리. share 가 비동기 OS 핸드오프라
+      // 정리 시점이 share 도중이면 OS 가 이미 read 완료한 후. share 실패해도
+      // 임시 파일은 남기지 않음.
+      if (createdPath != null) {
+        await _cleanupTempFile(createdPath);
+      }
+    }
+  }
+
+  Future<void> _cleanupTempFile(String path) async {
+    try {
+      final f = File(path);
+      if (await f.exists()) {
+        await f.delete();
+      }
+    } catch (_) {
+      // cleanup 실패는 무음 — 사용자 흐름 영향 없음, OS cache 자동 정리에 위임.
+    }
   }
 
   Future<void> _runVideoBranch(

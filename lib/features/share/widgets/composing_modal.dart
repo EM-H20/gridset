@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../cores/constants/app_colors.dart';
 import '../../../cores/constants/app_spacing.dart';
 import '../../../cores/constants/app_text_style.dart';
+import '../../../cores/widgets/buttons/app_button.dart';
 
 /// 영상 합성 진행 modal — full-screen charcoal82 dim + 진행 bar + 취소 버튼.
 ///
@@ -37,25 +37,31 @@ class ComposingModal extends StatelessWidget {
                 style: AppTextStyles.body_16.copyWith(color: AppColors.offWhite),
               ),
               SizedBox(height: AppSpacing.xl),
+              // Padding 이 이미 horizontal: xxl 적용 → SizedBox 는 무한 너비
+              // 로 두고 부모 제약을 따른다. 디바이스별 화면 폭 차이에 맞춰 자연
+              // 확장.
               SizedBox(
-                // 디자인 상 360dp 기준 progress bar 너비 — 좌우 32dp padding 제외.
-                width: 360.w,
-                child: LinearProgressIndicator(
-                  value: progress,
-                  color: AppColors.offWhite,
-                  backgroundColor: AppColors.charcoal40,
+                width: double.infinity,
+                child: Semantics(
+                  label: '영상 합성 진행 중',
+                  value: '${(progress.clamp(0.0, 1.0) * 100).toInt()}퍼센트',
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    color: AppColors.offWhite,
+                    backgroundColor: AppColors.charcoal40,
+                  ),
                 ),
               ),
               SizedBox(height: AppSpacing.xl),
-              OutlinedButton(
+              // AppButton.outlined 는 cream 배경 가정의 charcoal40 border 라
+              // 본 dark dim modal 위에서는 시각이 약함. 별 변형 추가는 본 PR
+              // 범위 밖 — 우선 AppButton 디자인 시스템 일관성 유지하고 후속에
+              // dark variant 검토. (시각이 정말 약하면 ComposingModal 의 배경
+              // 을 dark 가 아닌 cream 으로 변경하는 것도 후속 옵션.)
+              AppButton.outlined(
+                label: '취소',
                 onPressed: onCancel,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.offWhite),
-                ),
-                child: Text(
-                  '취소',
-                  style: AppTextStyles.body_16.copyWith(color: AppColors.offWhite),
-                ),
+                isFullWidth: false,
               ),
             ],
           ),
