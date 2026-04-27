@@ -1,7 +1,7 @@
 name: gridset
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.8+8
+version: 1.0.9+9
 environment:
   sdk: ^3.9.2
 dependencies:
@@ -58,7 +58,6 @@ flutter:
     - assets/splash.png
     - assets/wordmark.svg
     - assets/icons/
-
   fonts:
     - family: MoneygraphyPixel
       fonts:
