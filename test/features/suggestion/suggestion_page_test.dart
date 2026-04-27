@@ -119,4 +119,55 @@ void main() {
       expect(find.text('이게 마지막 제안이에요'), findsOneWidget);
     },
   );
+
+  // 진단 — canvas-picker 에서 1:1 / 4:5 / 16:9 / 9:16 어떤 비율을 골라도
+  // SuggestionCard 의 BspGridLayout 이 사용자 선택대로 aspectRatio 를 적용해야.
+  // 회귀 시 모든 비율이 같은 모양으로 보이는 버그를 즉시 잡는다.
+  for (final ratio in const [
+    CanvasRatio.portrait916(),
+    CanvasRatio.square(),
+    CanvasRatio.portrait45(),
+    CanvasRatio.landscape169(),
+  ]) {
+    testWidgets(
+      'flow.canvas=${ratio.value} → BspGridLayout.aspectRatio 그대로 흐름',
+      (tester) async {
+        const media = [
+          MediaItem(id: 'a', type: MediaType.photo, aspectRatio: 1.0),
+          MediaItem(id: 'b', type: MediaType.photo, aspectRatio: 1.5),
+        ];
+
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        container
+            .read(flowSelectionNotifierProvider.notifier)
+            .setMedia(media);
+        container
+            .read(flowSelectionNotifierProvider.notifier)
+            .setCanvas(ratio);
+
+        await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: ScreenUtilInit(
+            designSize: const Size(393, 852),
+            child: const MaterialApp(home: SuggestionPage()),
+          ),
+        ));
+        await tester.pumpAndSettle();
+
+        final layouts = tester.widgetList<AspectRatio>(
+          find.descendant(
+            of: find.byType(SuggestionPage),
+            matching: find.byType(AspectRatio),
+          ),
+        );
+        // 카드마다 1개의 AspectRatio (BspGridLayout 안). 모두 사용자 선택값.
+        expect(layouts, isNotEmpty);
+        for (final ar in layouts) {
+          expect(ar.aspectRatio, ratio.value,
+              reason: 'flow.canvas=${ratio.value} 가 카드까지 그대로 흘러야 함');
+        }
+      },
+    );
+  }
 }

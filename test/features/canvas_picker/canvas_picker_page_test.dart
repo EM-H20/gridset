@@ -89,4 +89,62 @@ void main() {
       const CanvasRatio.portrait916(), // 디폴트
     );
   });
+
+  // 회귀 — chip 선택값이 setCanvas 까지 정확히 흘러야 한다. 시뮬레이터에서
+  // "어떤 비율을 골라도 같은 모양" 으로 보이는 인상이 보고된 적 있어 가드.
+  for (final entry in const {
+    '1:1': CanvasRatio.square(),
+    '4:5': CanvasRatio.portrait45(),
+    '16:9': CanvasRatio.landscape169(),
+    '9:16': CanvasRatio.portrait916(),
+  }.entries) {
+    testWidgets(
+      '${entry.key} chip 선택 → 다음 → flow.canvas == ${entry.value.value}',
+      (tester) async {
+        _useDesignViewport(tester);
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+
+        final router = GoRouter(
+          initialLocation: '/',
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const CanvasPickerPage(),
+            ),
+            GoRoute(
+              path: '/photo-picker',
+              builder: (context, state) =>
+                  const Scaffold(body: Text('photo-stub')),
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: ScreenUtilInit(
+              designSize: _kDesignSize,
+              minTextAdapt: true,
+              builder: (context, _) =>
+                  MaterialApp.router(routerConfig: router),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text(entry.key));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('다음'));
+        await tester.pumpAndSettle();
+
+        expect(
+          container.read(flowSelectionNotifierProvider).canvas,
+          entry.value,
+          reason:
+              '${entry.key} chip 을 선택하고 "다음" 누르면 flow.canvas 가 그 값이어야 함',
+        );
+      },
+    );
+  }
 }
