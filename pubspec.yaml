@@ -37,6 +37,8 @@ dependencies:
   # Firebase (Remote Config 용)
   firebase_core: ^4.1.0
   firebase_remote_config: ^6.3.0
+  ffmpeg_kit_flutter_new: ^4.1.0
+  path_provider: ^2.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
