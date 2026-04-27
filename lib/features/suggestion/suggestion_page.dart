@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
 import '../../cores/widgets/snackbars/app_snackbar.dart';
+import 'providers/selected_assets_provider.dart';
 import 'providers/suggestion_notifier.dart';
 import 'providers/suggestion_state.dart';
 import 'widgets/suggestion_card.dart';
@@ -35,6 +37,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(suggestionNotifierProvider);
+    final assetsById = ref.watch(selectedAssetsNotifierProvider);
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -54,6 +57,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
           SuggestionStateError(:final message) => _Error(message: message),
           SuggestionStateLoaded() => _Loaded(
               state: state,
+              assetsById: assetsById,
               controller: _controller,
               onPageChanged: (i) =>
                   ref.read(suggestionNotifierProvider.notifier).selectIndex(i),
@@ -121,6 +125,7 @@ class _Error extends StatelessWidget {
 class _Loaded extends StatelessWidget {
   const _Loaded({
     required this.state,
+    required this.assetsById,
     required this.controller,
     required this.onPageChanged,
     required this.onPick,
@@ -129,6 +134,7 @@ class _Loaded extends StatelessWidget {
   });
 
   final SuggestionStateLoaded state;
+  final Map<String, AssetEntity> assetsById;
   final PageController controller;
   final ValueChanged<int> onPageChanged;
   final VoidCallback onPick;
@@ -159,6 +165,9 @@ class _Loaded extends StatelessWidget {
         Expanded(
           child: PageView.builder(
             controller: controller,
+            // 인접 1장 백그라운드 빌드 → _MappedThumb 의 FutureBuilder 가
+            // 미리 시작되어 swipe 시점에 photo_manager 캐시 적재 완료. 깜빡임 0.
+            allowImplicitScrolling: true,
             onPageChanged: onPageChanged,
             itemCount: state.suggestions.length,
             itemBuilder: (_, i) {
@@ -173,6 +182,7 @@ class _Loaded extends StatelessWidget {
                   child: SuggestionCard(
                     suggestion: state.suggestions[i],
                     canvas: state.canvas,
+                    assetsById: assetsById,
                   ),
                 ),
               );
