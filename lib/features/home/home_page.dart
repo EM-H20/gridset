@@ -13,6 +13,7 @@ import '../../cores/widgets/buttons/app_button.dart';
 import '../../cores/widgets/buttons/app_icon_button.dart';
 import '../../flow/flow_selection_provider.dart';
 import '../../routers/route_paths.dart';
+import '../suggestion/providers/selected_assets_provider.dart';
 
 /// 홈 화면 — Gridset 의 첫 화면.
 ///
@@ -54,11 +55,15 @@ class HomePage extends ConsumerWidget {
                 label: '사진·영상 고르기',
                 icon: Icons.image,
                 onPressed: () {
-                  // 흐름 시작 — 이전 흐름의 media 잔재를 명시적으로 비우고
-                  // 디폴트 9:16 으로 진입한다.
+                  // 흐름 시작 — 이전 흐름의 media + 선택 자산 잔재를 명시적으로
+                  // 비우고 디폴트 9:16 으로 진입한다. selectedAssets 는
+                  // keepAlive 라 reset 안 하면 다음 흐름까지 잔재 가능.
                   ref.read(flowSelectionNotifierProvider.notifier)
                     ..setMedia(const [])
                     ..setCanvas(const CanvasRatio.portrait916());
+                  ref
+                      .read(selectedAssetsNotifierProvider.notifier)
+                      .setAssets(const []);
                   context.push(RoutePaths.photoPicker);
                 },
               ),
@@ -67,10 +72,13 @@ class HomePage extends ConsumerWidget {
                 label: '비율 먼저 정하기',
                 onPressed: () {
                   // 흐름 시작 — canvas 는 picker 에서 다시 정하지만,
-                  // media 잔재만은 미리 정리한다.
+                  // media + 선택 자산 잔재만은 미리 정리한다 (둘 다 keepAlive).
                   ref
                       .read(flowSelectionNotifierProvider.notifier)
                       .setMedia(const []);
+                  ref
+                      .read(selectedAssetsNotifierProvider.notifier)
+                      .setAssets(const []);
                   context.push(RoutePaths.canvasPicker);
                 },
               ),
