@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'thumbnail_loader.g.dart';
 
@@ -11,7 +11,10 @@ part 'thumbnail_loader.g.dart';
 /// 테스트는 `thumbnailLoaderProvider.overrideWith((_) => FakeLoader(...))`
 /// 로 주입한다 — `_MappedThumb` 가 인터페이스에만 의존하므로 byte-level
 /// 모킹이 단순.
-abstract class ThumbnailLoader {
+///
+/// `abstract interface class` — Dart 3 modifiers. 순수 계약이라 인스턴스화 /
+/// 상속 확장 모두 차단하고 `implements` 만 허용한다.
+abstract interface class ThumbnailLoader {
   Future<Uint8List?> load(AssetEntity asset, {required ThumbnailSize size});
 }
 
