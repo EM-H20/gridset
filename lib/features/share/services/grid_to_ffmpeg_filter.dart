@@ -30,7 +30,9 @@ Size computeOutputSize(CanvasRatio canvas, int shortEdgePx) {
   return Size(w.toDouble(), h.toDouble());
 }
 
-// libx264: 가로/세로 모두 16배수 필요 (4:2:0 chroma subsampling)
+/// scale 출력 w/h 를 macroblock(16×16) 경계에 정렬해 인코딩 품질 최적화.
+/// libx264 강제 요건은 짝수 (2의 배수) — 16배수는 H.264 macroblock 정렬로
+/// 인코더 효율 + 호환성 baseline. overlay 의 x/y 픽셀 오프셋은 정렬 불필요.
 int _align16(int v) => ((v + 15) ~/ 16) * 16;
 
 /// ffmpeg input flags — photo 는 `-loop 1 -t {sec}` 추가, video 는 `-i` 만.
@@ -41,6 +43,7 @@ List<String> buildInputFlags({
   required List<CellSource> cells,
   required int tMinMs,
 }) {
+  assert(cells.isNotEmpty, 'cells must not be empty for input flags');
   final flags = <String>[];
   final tSec = (tMinMs / 1000).toStringAsFixed(0);
   for (final c in cells) {
@@ -57,8 +60,9 @@ List<String> buildInputFlags({
 /// filter_complex 문자열 생성 — bg color → 각 셀 trim/scale → overlay 누적.
 ///
 /// 배경색 0xF7F4ED: 디자인 시스템 Cream 색상 (AppColors.cream 동일 값).
-/// 각 셀 좌표를 16배수 정렬 후 overlay 하는 이유:
-/// scale 결과와 overlay 좌표가 일치하지 않으면 픽셀 경계 오류가 발생한다.
+/// 셀 scale 출력 (w/h) 만 16배수 정렬 (libx264 macroblock 효율). overlay 의
+/// x/y 는 ffmpeg 픽셀 오프셋이라 정렬 불필요 — 정렬하면 50:50 분할 시
+/// 셀 경계가 캔버스를 벗어나는 (1080 → 540 → align 544 + 544 = 1088 OOB) 오차 발생.
 String buildFilterComplex({
   required List<CellSource> cells,
   required int outputWidth,
@@ -66,6 +70,7 @@ String buildFilterComplex({
   required int tMinMs,
   required int fps,
 }) {
+  assert(cells.isNotEmpty, 'cells must not be empty for filter_complex');
   final tSec = (tMinMs / 1000).toStringAsFixed(0);
   final buf = StringBuffer()
     ..write('color=c=0xF7F4ED:size=${outputWidth}x$outputHeight'
@@ -74,8 +79,8 @@ String buildFilterComplex({
   final cellPositions = <(int x, int y, int w, int h)>[];
   for (var i = 0; i < cells.length; i++) {
     final c = cells[i];
-    final x = _align16((c.bbox.left * outputWidth).round());
-    final y = _align16((c.bbox.top * outputHeight).round());
+    final x = (c.bbox.left * outputWidth).round();
+    final y = (c.bbox.top * outputHeight).round();
     final w = _align16((c.bbox.width * outputWidth).round());
     final h = _align16((c.bbox.height * outputHeight).round());
     cellPositions.add((x, y, w, h));

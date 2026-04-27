@@ -62,6 +62,28 @@ void main() {
     expect(filter, contains('color=c=0xF7F4ED:size=1080x1080:r=30:duration=5'));
     expect(filter, contains('trim=duration=5'));
     expect(filter, contains('overlay=x=0:y=0'));
+    // 회귀 가드 — 두 번째 셀 x 좌표가 정확히 540 (정렬 X). _align16 적용 시
+    // 544 가 되어 오른쪽 셀이 캔버스 밖 (544+544=1088>1080) 으로 나간다.
+    expect(filter, contains('overlay=x=540:y=0'));
+    // scale 출력만 16배수 정렬 — 540 → 544 (셀 폭).
+    expect(filter, contains('scale=544:1088'));
+  });
+
+  test('빈 cells → assert 발생', () {
+    expect(
+      () => buildFilterComplex(
+        cells: const [],
+        outputWidth: 1080,
+        outputHeight: 1080,
+        tMinMs: 5000,
+        fps: 30,
+      ),
+      throwsA(isA<AssertionError>()),
+    );
+    expect(
+      () => buildInputFlags(cells: const [], tMinMs: 5000),
+      throwsA(isA<AssertionError>()),
+    );
   });
 
   test('input flags — photo 는 -loop 1 -t Tmin/1000 -i', () {
