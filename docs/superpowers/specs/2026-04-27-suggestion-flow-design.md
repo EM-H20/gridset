@@ -575,7 +575,7 @@ A 머지 → B → C → D 순서. A/B/C 사이 main rebase 가능.
 | 미래 작업 | 이 spec 의 받침대 |
 | --- | --- |
 | Editor 화면 (F02-F06) | `flowSelectionProvider.media` + `suggestion.suggestions[selectedIndex]` 가 그대로 Editor 초기 상태로 흐름 |
-| 사진 썸네일 매핑 (v1.x) | `BspGridLayout.cellBuilder` 를 `_PlaceholderCell` → `_MappedThumb(asset:...)` 로 swap. SuggestionCard 한 곳만 수정 |
+| 사진 썸네일 매핑 (v1.x) ✓ | 구현 완료 — `BspGridLayout.cellBuilder` 를 `_MappedThumb` 로 swap, `selectedAssetsProvider` 도입, PageView preload. 자세한 설계: [`2026-04-27-mapped-thumb-design.md`](./2026-04-27-mapped-thumb-design.md) |
 | F07 영상 자동 싱크 | `MediaItem.durationMs` 가 이미 변환에서 채워짐. `suggest(weightOf:...)` 인자만 채우면 알고리즘 재진입 |
 | F11 되돌리기/다시하기 | flow state 가 Riverpod Notifier — history stack push/pop 자연 |
 | F16 "내 템플릿" | dev gallery + suggestion 둘 다 `BspGridLayout` 사용 → 사용자 정의 NamedTemplate 시각화 즉시 |
