@@ -7,6 +7,8 @@ import '../../cores/constants/app_colors.dart';
 import '../../cores/constants/app_spacing.dart';
 import '../../cores/constants/app_text_style.dart';
 import '../../cores/widgets/snackbars/app_snackbar.dart';
+import '../share/share_coordinator.dart';
+import '../share/widgets/composing_modal.dart';
 import 'providers/selected_assets_provider.dart';
 import 'providers/suggestion_notifier.dart';
 import 'providers/suggestion_state.dart';
@@ -27,6 +29,10 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
   // 인스타 캐러셀 식: 메인 카드 거의 풀폭(92%) + 양 옆 인접 카드 모서리만 살짝.
   final PageController _controller =
       PageController(viewportFraction: 0.92, initialPage: 0);
+
+  // selected 카드 RepaintBoundary 캡처 key — ImageCapturer 가 PNG 추출에 사용.
+  // PageView 내에서 selected 카드 1개에만 부착해 캡처 대상을 단일화한다.
+  final GlobalKey _shareCardKey = GlobalKey();
 
   @override
   void dispose() {
@@ -59,9 +65,10 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
               state: state,
               assetsById: assetsById,
               controller: _controller,
+              shareCardKey: _shareCardKey,
               onPageChanged: (i) =>
                   ref.read(suggestionNotifierProvider.notifier).selectIndex(i),
-              onPick: () => _stub(context, '에디터는 곧 준비됩니다'),
+              onPick: () => _onPick(context, ref, state),
               onMore: state.cursor == null
                   ? null
                   : () => _onMore(context, ref),
@@ -78,6 +85,91 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
       message: message,
       iconPath: 'assets/icons/icon_copy.svg',
     );
+  }
+
+  /// "이걸로" 콜백 — ShareCoordinator 를 통해 사진/영상 분기 처리.
+  ///
+  /// 200ms 지연 후 ComposingModal 노출 — 사진 분기는 보통 그 전에 끝나
+  /// modal 이 불필요하게 뜨지 않는다. 영상 분기는 수초 걸려 modal + progress bar 로
+  /// 사용자에게 진행 상황 명시. cancel 은 coordinator.cancel() 을 통해 VideoComposer 로 전달.
+  Future<void> _onPick(
+    BuildContext context,
+    WidgetRef ref,
+    SuggestionStateLoaded state,
+  ) async {
+    final container = ProviderScope.containerOf(context);
+    final coordinator = ShareCoordinator(container);
+    final suggestion = state.suggestions[state.selectedIndex];
+    final assetsById = ref.read(selectedAssetsNotifierProvider);
+
+    bool modalShown = false;
+    double progress = 0;
+    StateSetter? rebuildModal;
+
+    void showModalIfNotYet() {
+      if (modalShown) return;
+      if (!context.mounted) return;
+      modalShown = true;
+      // ignore: use_build_context_synchronously
+      // mounted 체크 직후 동기 호출 — async 갭 없음. 클로저 호출 시점마다 guard.
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogCtx) => StatefulBuilder(
+          builder: (_, setStateDialog) {
+            rebuildModal = setStateDialog;
+            return ComposingModal(
+              progress: progress,
+              onCancel: () async {
+                await coordinator.cancel();
+                // dialogCtx 는 StatefulBuilder 빌더 인자 — dialog 가 살아있는
+                // 동안 항상 유효. mounted 체크는 canPop 이 대신 수행.
+                // ignore: use_build_context_synchronously
+                if (Navigator.of(dialogCtx).canPop()) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(dialogCtx).pop();
+                }
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    // 200ms 후 modal 노출 — 사진 분기는 보통 그 전에 끝나 불필요한 modal 방지.
+    Future<void>.delayed(const Duration(milliseconds: 200), () {
+      if (!modalShown) showModalIfNotYet();
+    });
+
+    try {
+      await coordinator.run(
+        cardKey: _shareCardKey,
+        suggestion: suggestion,
+        canvas: state.canvas,
+        assetsById: assetsById,
+        onProgress: (p) {
+          progress = p;
+          // modal 이 떠있으면 rebuild 로 progress bar 갱신.
+          rebuildModal?.call(() {});
+        },
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      if (modalShown && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+      AppSnackbar.show(
+        context,
+        message: '영상 만들기에 실패했어요',
+        iconPath: 'assets/icons/icon_siren.svg',
+      );
+      return;
+    }
+
+    if (!context.mounted) return;
+    if (modalShown && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 
   /// "다른 제안" 콜백 — loadMore 후 cursor 가 null 로 떨어지면 풀 소진을
@@ -144,6 +236,7 @@ class _Loaded extends StatelessWidget {
     required this.state,
     required this.assetsById,
     required this.controller,
+    required this.shareCardKey,
     required this.onPageChanged,
     required this.onPick,
     required this.onMore,
@@ -153,6 +246,8 @@ class _Loaded extends StatelessWidget {
   final SuggestionStateLoaded state;
   final Map<String, AssetEntity> assetsById;
   final PageController controller;
+  // selected 카드 RepaintBoundary 에 부착할 key — ImageCapturer 가 PNG 추출 시 사용.
+  final GlobalKey shareCardKey;
   final ValueChanged<int> onPageChanged;
   final VoidCallback onPick;
   final VoidCallback? onMore;
@@ -189,6 +284,11 @@ class _Loaded extends StatelessWidget {
             itemCount: state.suggestions.length,
             itemBuilder: (_, i) {
               final selected = i == state.selectedIndex;
+              final card = SuggestionCard(
+                suggestion: state.suggestions[i],
+                canvas: state.canvas,
+                assetsById: assetsById,
+              );
               return Padding(
                 // viewportFraction 92% 가 양 옆 4% gap 을 만든다 — 추가 gap 은
                 // xxs 만 줘서 카드끼리 너무 붙지 않게 한다.
@@ -201,11 +301,11 @@ class _Loaded extends StatelessWidget {
                   // Center 로 감싸 자식이 비율대로 자기 사이즈 결정 + 가운데 정렬.
                   // 결과: 9:16 → 세로 길게, 1:1 → 정사각형, 16:9 → 가로 길게.
                   child: Center(
-                    child: SuggestionCard(
-                      suggestion: state.suggestions[i],
-                      canvas: state.canvas,
-                      assetsById: assetsById,
-                    ),
+                    // selected 카드만 RepaintBoundary + GlobalKey 부착 —
+                    // 캡처 대상을 1개로 한정. 비selected 는 일반 card 라 캡처 불가.
+                    child: selected
+                        ? RepaintBoundary(key: shareCardKey, child: card)
+                        : card,
                   ),
                 ),
               );
