@@ -153,10 +153,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(Image), findsOneWidget);
-    // SvgPicture.asset 으로 그려진 ▶ icon — asset path 가 'icon_play' 포함되는지로 식별.
+    // SvgAssetLoader.assetName 으로 식별 — toString 포맷이 flutter_svg 버전 업
+    // 시 바뀌어도 견고. (이전 toString().contains 방식은 silent fail 위험.)
     expect(
-      find.byWidgetPredicate((w) =>
-          w is SvgPicture && w.bytesLoader.toString().contains('icon_play')),
+      find.byWidgetPredicate((w) {
+        if (w is! SvgPicture) return false;
+        final loader = w.bytesLoader;
+        return loader is SvgAssetLoader &&
+            loader.assetName.contains('icon_play');
+      }),
       findsOneWidget,
       reason: '영상 셀은 ▶ overlay 가 깔림',
     );
