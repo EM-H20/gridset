@@ -47,12 +47,15 @@ void main() {
 
       // 진입
       final s0 = c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
-      if (s0.suggestions.length >= 2) {
-        c.read(suggestionNotifierProvider.notifier).selectIndex(1);
-        final s1 =
-            c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
-        expect(s1.selectedIndex, 1);
-      }
+      // 사전조건 단정 — 알고리즘이 N=3 에서 최소 2개 이상 후보를 내야
+      // selectIndex 의미가 있다. 회귀 시 silent skip 방지.
+      expect(s0.suggestions.length, greaterThanOrEqualTo(2),
+          reason: 'N=3 입력은 다중 후보를 보장해야 함');
+
+      c.read(suggestionNotifierProvider.notifier).selectIndex(1);
+      final s1 =
+          c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
+      expect(s1.selectedIndex, 1);
     });
 
     test('loadMore — cursor 진행 시 suggestions 누적', () {
@@ -69,12 +72,14 @@ void main() {
       final s0 = c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
       final initial = s0.suggestions.length;
 
-      if (s0.cursor != null) {
-        c.read(suggestionNotifierProvider.notifier).loadMore();
-        final s1 =
-            c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
-        expect(s1.suggestions.length, greaterThan(initial));
-      }
+      // 사전조건 단정 — 첫 batch 가 cursor 를 줘야 loadMore 검증 의미. cursor 가
+      // 없으면 알고리즘이 first-batch-only 로 회귀했다는 신호.
+      expect(s0.cursor, isNotNull,
+          reason: 'N=3 첫 batch 는 후속 cursor 를 반환해야 함');
+
+      c.read(suggestionNotifierProvider.notifier).loadMore();
+      final s1 = c.read(suggestionNotifierProvider) as SuggestionStateLoaded;
+      expect(s1.suggestions.length, greaterThan(initial));
     });
   });
 }
