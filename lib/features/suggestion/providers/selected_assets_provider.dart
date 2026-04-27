@@ -16,9 +16,9 @@ class SelectedAssetsNotifier extends _$SelectedAssetsNotifier {
   @override
   Map<String, AssetEntity> build() => const {};
 
-  /// `id → AssetEntity` 로 정규화. List 의 순서는 알고리즘 입력
-  /// (`flow.media`) 에서만 의미 있고, 본 provider 는 lookup 용이라 Map.
-  /// `Map.unmodifiable` 로 외부 mutation 차단.
+  /// lookup 전용이므로 List 가 아닌 Map 으로 정규화.
+  /// (List 순서는 `flow.media` 알고리즘에서만 의미 있음.)
+  /// `Map.unmodifiable` 로 notifier 외부의 직접 수정을 차단한다.
   void setAssets(List<AssetEntity> items) =>
       state = Map.unmodifiable({for (final a in items) a.id: a});
 }

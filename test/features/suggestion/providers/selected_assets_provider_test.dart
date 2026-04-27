@@ -71,4 +71,23 @@ void main() {
 
     expect(() => state['b'] = _fake('b'), throwsUnsupportedError);
   });
+
+  // keepAlive 이라 화면 전환 후에도 state 가 살아있다.
+  // 이전 picker 선택 잔재가 남으면 다음 흐름에서 mediaByCellId 와 어긋나
+  // 매핑 실패 fallback 으로 떨어진다 — 재호출 시 전체 교체를 보증.
+  test('setAssets 재호출 시 이전 state 전체 교체', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier =
+        container.read(selectedAssetsNotifierProvider.notifier);
+
+    notifier.setAssets([_fake('a'), _fake('b')]);
+    notifier.setAssets([_fake('c')]);
+
+    final state = container.read(selectedAssetsNotifierProvider);
+    expect(state.keys, ['c']);
+    expect(state.containsKey('a'), isFalse,
+        reason: '이전 state 의 항목이 남으면 다음 picker 흐름이 오염됨');
+    expect(state.containsKey('b'), isFalse);
+  });
 }
