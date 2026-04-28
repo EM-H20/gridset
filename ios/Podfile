@@ -38,5 +38,12 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # ffmpeg_kit_flutter_new 4.1.0 의 ios framework 가 device-arm64 슬라이스
+    # 만 가지고 있어 Apple Silicon Mac 의 native arm64 시뮬레이터 빌드 시 link
+    # 실패. 시뮬레이터 빌드에서 arm64 를 제외하면 x86_64 (Rosetta) 슬라이스로
+    # link → 시뮬레이터 검증 가능 (실 디바이스는 영향 없음).
+    target.build_configurations.each do |config|
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+    end
   end
 end
