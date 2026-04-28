@@ -5,10 +5,19 @@ import '../../../cores/constants/app_spacing.dart';
 import '../../../cores/constants/app_text_style.dart';
 import '../../../cores/widgets/buttons/app_button.dart';
 
-/// 영상 합성 진행 modal — full-screen charcoal82 dim + 진행 bar + 취소 버튼.
+/// 영상 합성 진행 modal — Lovable Cream Surface 카드.
 ///
-/// 호출자가 200ms 이후만 노출하도록 timing 제어하는 게 UX상 적절.
-/// 본 위젯은 stateless presentation 전용 — 상태 관리는 상위 위젯.
+/// 디자인 시스템 정합 (Design.md §4 Cream Surface + §"Border Radius Scale" Card):
+/// - 카드: cream 배경, radius 12, focus shadow (Level 3), Padding xl
+/// - 텍스트: charcoal body_16
+/// - progress bar: charcoal value + charcoal04 background (Lovable subtle)
+/// - 취소 버튼: AppButton.outlined (cream 톤 native 일관)
+///
+/// dim 배경은 호출자(`showDialog`) 의 `barrierColor: charcoal82` 가 담당 —
+/// 화면 전체 (AppBar 포함) 를 dark dim 으로 덮어 카드만 부각.
+///
+/// `Material` root 로 wrap — Flutter debug 모드에서 Material 부모 없을 때
+/// 발생하는 yellow underline 차단. `borderRadius` + `color` 직접 적용.
 class ComposingModal extends StatelessWidget {
   const ComposingModal({
     super.key,
@@ -24,46 +33,55 @@ class ComposingModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.charcoal82,
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '영상 만드는 중...',
-                style: AppTextStyles.body_16.copyWith(color: AppColors.offWhite),
-              ),
-              SizedBox(height: AppSpacing.xl),
-              // Padding 이 이미 horizontal: xxl 적용 → SizedBox 는 무한 너비
-              // 로 두고 부모 제약을 따른다. 디바이스별 화면 폭 차이에 맞춰 자연
-              // 확장.
-              SizedBox(
-                width: double.infinity,
-                child: Semantics(
-                  label: '영상 합성 진행 중',
-                  value: '${(progress.clamp(0.0, 1.0) * 100).toInt()}퍼센트',
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    color: AppColors.offWhite,
-                    backgroundColor: AppColors.charcoal40,
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+        child: Material(
+          color: AppColors.cream,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.cream,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.shadowFocus,
+                  offset: Offset(0, 4),
+                  blurRadius: 12,
+                ),
+              ],
+            ),
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '영상 만드는 중...',
+                  style: AppTextStyles.body_16
+                      .copyWith(color: AppColors.charcoal),
+                ),
+                SizedBox(height: AppSpacing.xl),
+                SizedBox(
+                  width: double.infinity,
+                  child: Semantics(
+                    label: '영상 합성 진행 중',
+                    value:
+                        '${(progress.clamp(0.0, 1.0) * 100).toInt()}퍼센트',
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      color: AppColors.charcoal,
+                      backgroundColor: AppColors.charcoal04,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: AppSpacing.xl),
-              // AppButton.outlined 는 cream 배경 가정의 charcoal40 border 라
-              // 본 dark dim modal 위에서는 시각이 약함. 별 변형 추가는 본 PR
-              // 범위 밖 — 우선 AppButton 디자인 시스템 일관성 유지하고 후속에
-              // dark variant 검토. (시각이 정말 약하면 ComposingModal 의 배경
-              // 을 dark 가 아닌 cream 으로 변경하는 것도 후속 옵션.)
-              AppButton.outlined(
-                label: '취소',
-                onPressed: onCancel,
-                isFullWidth: false,
-              ),
-            ],
+                SizedBox(height: AppSpacing.xl),
+                AppButton.outlined(
+                  label: '취소',
+                  onPressed: onCancel,
+                  isFullWidth: false,
+                ),
+              ],
+            ),
           ),
         ),
       ),

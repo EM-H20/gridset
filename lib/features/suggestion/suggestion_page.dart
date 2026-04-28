@@ -145,6 +145,9 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
       showDialog<void>(
         context: context,
         barrierDismissible: false,
+        // 화면 전체 (AppBar 포함) 를 dark dim 으로 덮어 cream 카드만 부각.
+        // default barrierColor (Colors.black54) 보다 진한 charcoal82 사용.
+        barrierColor: AppColors.charcoal82,
         builder: (dialogCtx) => StatefulBuilder(
           builder: (_, setStateDialog) {
             rebuildModal = setStateDialog;

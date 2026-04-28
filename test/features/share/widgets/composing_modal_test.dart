@@ -35,7 +35,8 @@ void main() {
     expect(cancelled, isTrue);
   });
 
-  testWidgets('ComposingModal — 배경 charcoal82', (tester) async {
+  testWidgets('ComposingModal — Lovable cream 카드 (Material color)',
+      (tester) async {
     await tester.pumpWidget(
       ScreenUtilInit(
         designSize: const Size(393, 852),
@@ -47,14 +48,16 @@ void main() {
       ),
     );
 
-    final coloredBox = tester.widget<ColoredBox>(
+    // 카드 root Material 색이 cream — Lovable Card §4 정합.
+    // dim 배경은 호출자(showDialog barrierColor)가 담당하므로 위젯 자체는 검증 X.
+    final material = tester.widget<Material>(
       find
           .descendant(
             of: find.byType(ComposingModal),
-            matching: find.byType(ColoredBox),
+            matching: find.byType(Material),
           )
           .first,
     );
-    expect(coloredBox.color, AppColors.charcoal82);
+    expect(material.color, AppColors.cream);
   });
 }
