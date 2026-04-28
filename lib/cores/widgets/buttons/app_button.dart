@@ -22,6 +22,7 @@ class AppButton extends StatefulWidget {
     required this.onPressed,
     this.icon,
     this.isFullWidth = true,
+    this.alignment = Alignment.centerLeft,
   }) : _variant = _AppButtonVariant.primary;
 
   const AppButton.outlined({
@@ -29,6 +30,7 @@ class AppButton extends StatefulWidget {
     required this.label,
     required this.onPressed,
     this.isFullWidth = true,
+    this.alignment = Alignment.centerLeft,
   }) : _variant = _AppButtonVariant.outlined,
        icon = null;
 
@@ -36,6 +38,10 @@ class AppButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   final bool isFullWidth;
+  /// `isFullWidth: false` 일 때 shrink-wrap 버튼의 정렬 방향.
+  /// default `centerLeft` — 기존 호출부 동작 호환. dialog action 등 우측이
+  /// 필요한 경우 `Alignment.centerRight` 명시.
+  final AlignmentGeometry alignment;
   final _AppButtonVariant _variant;
 
   @override
@@ -146,7 +152,7 @@ class _AppButtonState extends State<AppButton> {
     return widget.isFullWidth
         ? gestureDetector
         : Align(
-            alignment: Alignment.centerLeft,
+            alignment: widget.alignment,
             child: IntrinsicWidth(child: gestureDetector),
           );
   }
