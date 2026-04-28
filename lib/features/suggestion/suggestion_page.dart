@@ -32,9 +32,21 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
   final PageController _controller =
       PageController(viewportFraction: 0.92, initialPage: 0);
 
-  // selected 카드 RepaintBoundary 캡처 key — ImageCapturer 가 PNG 추출에 사용.
-  // PageView 내에서 selected 카드 1개에만 부착해 캡처 대상을 단일화한다.
-  final GlobalKey _shareCardKey = GlobalKey();
+  // 카드별 RepaintBoundary GlobalKey 영구 보유 — index → GlobalKey.
+  //
+  // 이전엔 selected 카드 1개에만 RepaintBoundary+key 부착했는데, swipe 마다
+  // RepaintBoundary 의 key 가 widget tree 에서 add/remove 되면서 element 가
+  // 파괴+재생성 → _MappedThumb State.dispose → _future 재생성 → 썸네일 재로드
+  // (사용자가 본 깜빡임). 카드마다 고정 GlobalKey 로 element 안정화 + State
+  // 보존. ImageCapturer 는 selectedIndex 의 key 사용.
+  final List<GlobalKey> _cardKeys = [];
+
+  GlobalKey _keyFor(int i) {
+    while (_cardKeys.length <= i) {
+      _cardKeys.add(GlobalKey());
+    }
+    return _cardKeys[i];
+  }
 
   @override
   void dispose() {
@@ -67,7 +79,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
               state: state,
               assetsById: assetsById,
               controller: _controller,
-              shareCardKey: _shareCardKey,
+              keyFor: _keyFor,
               onPageChanged: (i) =>
                   ref.read(suggestionNotifierProvider.notifier).selectIndex(i),
               onPick: () => _onPick(context, ref, state),
@@ -168,7 +180,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
 
     try {
       await coordinator.run(
-        cardKey: _shareCardKey,
+        cardKey: _keyFor(state.selectedIndex),
         suggestion: suggestion,
         canvas: state.canvas,
         assetsById: assetsById,
@@ -259,7 +271,7 @@ class _Loaded extends StatelessWidget {
     required this.state,
     required this.assetsById,
     required this.controller,
-    required this.shareCardKey,
+    required this.keyFor,
     required this.onPageChanged,
     required this.onPick,
     required this.onMore,
@@ -269,8 +281,8 @@ class _Loaded extends StatelessWidget {
   final SuggestionStateLoaded state;
   final Map<String, AssetEntity> assetsById;
   final PageController controller;
-  // selected 카드 RepaintBoundary 에 부착할 key — ImageCapturer 가 PNG 추출 시 사용.
-  final GlobalKey shareCardKey;
+  // 카드 index → 고정 GlobalKey. swipe 시 key 변동 없이 element 안정화.
+  final GlobalKey Function(int index) keyFor;
   final ValueChanged<int> onPageChanged;
   final VoidCallback onPick;
   final VoidCallback? onMore;
@@ -324,11 +336,13 @@ class _Loaded extends StatelessWidget {
                   // Center 로 감싸 자식이 비율대로 자기 사이즈 결정 + 가운데 정렬.
                   // 결과: 9:16 → 세로 길게, 1:1 → 정사각형, 16:9 → 가로 길게.
                   child: Center(
-                    // selected 카드만 RepaintBoundary + GlobalKey 부착 —
-                    // 캡처 대상을 1개로 한정. 비selected 는 일반 card 라 캡처 불가.
-                    child: selected
-                        ? RepaintBoundary(key: shareCardKey, child: card)
-                        : card,
+                    // 모든 카드를 RepaintBoundary 로 wrapping — 카드별 고정
+                    // GlobalKey 부착해 swipe 시 element 재생성 차단. 캡처는
+                    // ImageCapturer 가 selectedIndex 의 key 사용.
+                    child: RepaintBoundary(
+                      key: keyFor(i),
+                      child: card,
+                    ),
                   ),
                 ),
               );
