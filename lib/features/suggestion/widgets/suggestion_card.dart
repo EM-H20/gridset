@@ -62,9 +62,18 @@ class _MappedThumb extends ConsumerStatefulWidget {
   ConsumerState<_MappedThumb> createState() => _MappedThumbState();
 }
 
-class _MappedThumbState extends ConsumerState<_MappedThumb> {
+class _MappedThumbState extends ConsumerState<_MappedThumb>
+    with AutomaticKeepAliveClientMixin {
   Future<Uint8List?>? _future;
   AssetEntity? _asset;
+
+  // PageView 의 cache 밖으로 넘어가도 element/State dispose 되지 않게 keepAlive.
+  // dispose → re-mount 시 _future 가 새로 생성되어 썸네일 재로드 + 깜빡임이
+  // 발생. swipe 좌우로 부드럽게 넘기려면 셀 단위 keepAlive 가 필수.
+  // SliverChildBuilderDelegate.addAutomaticKeepAlives default true 라 PageView 가
+  // 본 mixin 의 KeepAliveNotification 을 받아 element 를 살려둔다.
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -107,6 +116,8 @@ class _MappedThumbState extends ConsumerState<_MappedThumb> {
 
   @override
   Widget build(BuildContext context) {
+    // AutomaticKeepAliveClientMixin 사용 시 build 첫 줄에서 super 호출 필수.
+    super.build(context);
     final asset = _asset;
     final future = _future;
     if (asset == null || future == null) {

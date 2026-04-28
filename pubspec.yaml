@@ -37,6 +37,11 @@ dependencies:
   # Firebase (Remote Config 용)
   firebase_core: ^4.1.0
   firebase_remote_config: ^6.3.0
+  # ffmpeg_kit_flutter_new 4.1.0 — fork 패키지. 4.1.0 의 ios framework 가
+  # device-arm64 슬라이스만 가지고 있어 Apple Silicon Mac 시뮬레이터 link
+  # 실패. 우회: Podfile post_install 에서 시뮬레이터 빌드 시 arm64 제외 →
+  # x86_64 Rosetta 시뮬레이터 사용. (구 official ffmpeg_kit_flutter 6.0.3 은
+  # archived + GitHub release 404 takedown 으로 사용 불가.)
   ffmpeg_kit_flutter_new: ^4.1.0
   path_provider: ^2.1.5
 dev_dependencies:
