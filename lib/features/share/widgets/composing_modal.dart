@@ -75,10 +75,15 @@ class ComposingModal extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: AppSpacing.xl),
-                AppButton.outlined(
-                  label: '취소',
-                  onPressed: onCancel,
-                  isFullWidth: false,
+                // 취소 버튼은 카드 내 우측 정렬 — Lovable dialog 의 일반적인
+                // action 정렬 (cancel/dismiss 가 우측 하단).
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: AppButton.outlined(
+                    label: '취소',
+                    onPressed: onCancel,
+                    isFullWidth: false,
+                  ),
                 ),
               ],
             ),
