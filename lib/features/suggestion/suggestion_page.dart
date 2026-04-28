@@ -121,10 +121,14 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
     // pop 시 SuggestionPage 가 홈으로 튕겨 나가는 회귀 위험. 별 플래그로 추적.
     var dialogOpen = false;
     var cancelInFlight = false;
+    var completed = false; // run() 종료 — Timer / 늦은 modal 노출 차단.
     double progress = 0;
     StateSetter? rebuildModal;
+    Timer? modalDelayTimer;
 
     void closeDialogIfOpen() {
+      // dialog dispose 후 stale setter 호출 방지 — null 화 먼저.
+      rebuildModal = null;
       if (!dialogOpen) return;
       if (!context.mounted) {
         // 라우트가 이미 unmount — 플래그만 정리.
@@ -138,6 +142,8 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
     }
 
     void showModalIfNotYet() {
+      // run() 이 200ms 안에 끝났으면 modal 띄우지 않음 — stray dialog 차단.
+      if (completed) return;
       if (dialogOpen) return;
       if (!context.mounted) return;
       dialogOpen = true;
@@ -161,6 +167,7 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
                 // pop 후 false 가 되므로 async gap 전에 처리. ffmpeg cancel
                 // 자체는 fire-and-forget (사용자는 이미 dialog 닫혔다고 인지).
                 dialogOpen = false;
+                rebuildModal = null;
                 if (Navigator.of(dialogCtx).canPop()) {
                   Navigator.of(dialogCtx).pop();
                 }
@@ -170,16 +177,18 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
           },
         ),
       ).whenComplete(() {
-        // 사용자가 시스템 back 등으로 dialog 닫히는 경로도 추적.
+        // 사용자가 시스템 back 등 다른 경로로 dialog 닫히는 케이스 추적.
         dialogOpen = false;
+        rebuildModal = null;
       });
     }
 
     // 200ms 후 modal 노출 — 사진 분기는 보통 그 전에 끝나 불필요한 modal 방지.
-    // unawaited: Future.delayed 의 Future 자체는 의도적 fire-and-forget.
-    unawaited(Future<void>.delayed(const Duration(milliseconds: 200), () {
-      showModalIfNotYet();
-    }));
+    // Timer 사용해 run 완료 시 cancel 가능하게 (Future.delayed 는 cancel 불가).
+    modalDelayTimer = Timer(
+      const Duration(milliseconds: 200),
+      showModalIfNotYet,
+    );
 
     try {
       await coordinator.run(
@@ -188,11 +197,15 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
         canvas: state.canvas,
         assetsById: assetsById,
         onProgress: (p) {
+          // dialog 닫힌 후 onProgress 호출 시 stale setter 호출 방지.
+          if (!dialogOpen) return;
           progress = p;
           rebuildModal?.call(() {});
         },
       );
     } catch (e) {
+      completed = true;
+      modalDelayTimer.cancel();
       if (!context.mounted) return;
       closeDialogIfOpen();
       // cancel 로 인한 throw 라면 사용자 의도이므로 SnackBar 무음. 그 외는 안내.
@@ -206,6 +219,8 @@ class _SuggestionPageState extends ConsumerState<SuggestionPage> {
       return;
     }
 
+    completed = true;
+    modalDelayTimer.cancel();
     if (!context.mounted) return;
     closeDialogIfOpen();
   }

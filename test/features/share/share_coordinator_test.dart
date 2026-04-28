@@ -94,9 +94,15 @@ GridSuggestion _suggestion(Map<int, String> mediaByCellId) => GridSuggestion(
     );
 
 void main() {
+  // path_provider 네이티브 채널을 fake 로 교체. 전역 singleton 이라 test 후
+  // 복원 안 하면 후속 test 가 fake 를 그대로 사용 → 순서 의존 flaky.
+  late PathProviderPlatform originalPathProvider;
   setUp(() {
-    // path_provider 네이티브 채널을 fake 로 교체.
+    originalPathProvider = PathProviderPlatform.instance;
     PathProviderPlatform.instance = _FakePathProvider();
+  });
+  tearDown(() {
+    PathProviderPlatform.instance = originalPathProvider;
   });
 
   test('사진만 — ImageCapturer 호출 + share PNG', () async {

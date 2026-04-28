@@ -63,15 +63,21 @@ class ComposingModal extends StatelessWidget {
                 SizedBox(height: AppSpacing.xl),
                 SizedBox(
                   width: double.infinity,
-                  child: Semantics(
-                    label: '영상 합성 진행 중',
-                    value:
-                        '${(progress.clamp(0.0, 1.0) * 100).toInt()}퍼센트',
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      color: AppColors.charcoal,
-                      backgroundColor: AppColors.charcoal04,
-                    ),
+                  child: Builder(
+                    builder: (_) {
+                      // Semantics value / progress bar 둘 다 동일 normalized
+                      // 값 사용 — 19줄 dartdoc "0.0 ~ 1.0" 계약 명시 적용.
+                      final normalized = progress.clamp(0.0, 1.0);
+                      return Semantics(
+                        label: '영상 합성 진행 중',
+                        value: '${(normalized * 100).toInt()}퍼센트',
+                        child: LinearProgressIndicator(
+                          value: normalized,
+                          color: AppColors.charcoal,
+                          backgroundColor: AppColors.charcoal04,
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(height: AppSpacing.xl),

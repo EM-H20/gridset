@@ -73,10 +73,8 @@ class ShareCoordinator {
     final ts = DateTime.now().millisecondsSinceEpoch;
     final path = '${tempDir.path}/gridset_$ts.png';
 
-    String? createdPath;
     try {
       await File(path).writeAsBytes(bytes);
-      createdPath = path;
       await dispatcher.share(filePaths: [path], subject: 'Gridset');
     } on FileSystemException catch (e, st) {
       developer.log(
@@ -85,28 +83,13 @@ class ShareCoordinator {
         error: e,
         stackTrace: st,
       );
-      // 호출자가 SnackBar 분기로 잡도록 rethrow — VideoComposer 의 StateError
-      // 와 동일 흐름 (호출부 try/catch 한 곳에서 처리).
+      // 실패 케이스에선 호출자가 SnackBar 로 안내 — VideoComposer 와 동일 흐름.
       rethrow;
-    } finally {
-      // share 시트 dismiss 후 임시 파일 정리. share 가 비동기 OS 핸드오프라
-      // 정리 시점이 share 도중이면 OS 가 이미 read 완료한 후. share 실패해도
-      // 임시 파일은 남기지 않음.
-      if (createdPath != null) {
-        await _cleanupTempFile(createdPath);
-      }
     }
-  }
-
-  Future<void> _cleanupTempFile(String path) async {
-    try {
-      final f = File(path);
-      if (await f.exists()) {
-        await f.delete();
-      }
-    } catch (_) {
-      // cleanup 실패는 무음 — 사용자 흐름 영향 없음, OS cache 자동 정리에 위임.
-    }
+    // share 성공 시점에 즉시 삭제하지 않는다 — share_plus 가 OS 핸드오프 한 뒤
+    // 일부 share target (카톡 등) 이 비동기로 늦게 read 하면 race 로 실패. MP4
+    // 분기와 동일하게 임시 파일 보존 → OS cache directory 가 자동 만료.
+    // tempDir 이 grow 하지 않게 호출 진입 시 stale 파일 일괄 cleanup (헬퍼).
   }
 
   Future<void> _runVideoBranch(
@@ -137,8 +120,10 @@ class ShareCoordinator {
 
   /// suggestion + assetsById → CellSource 리스트 변환.
   ///
-  /// `asset.file` 은 native 호출 — 테스트 환경에서 null 반환 가능.
-  /// null file 셀은 skip (실제 디바이스에서는 발생하지 않아야 함).
+  /// 셀 누락은 silent skip 하지 않고 즉시 throw — 셀 1개라도 빠지면 결과
+  /// MP4 가 사용자 의도와 다른 형태로 (영상 빠진 채) 출력되어 "성공" 으로
+  /// share 되는 데이터 무결성 문제 발생. 권한 limited 변경 / asset 삭제 등
+  /// edge case 도 호출자가 SnackBar 로 명시적 안내해야 한다.
   Future<List<CellSource>> _buildCellSources(
     GridSuggestion suggestion,
     Map<String, AssetEntity> assetsById,
@@ -152,10 +137,25 @@ class ShareCoordinator {
       final asset = assetsById[assetId];
       final bbox = bboxes[cellId];
 
-      if (asset == null || bbox == null) continue;
+      if (asset == null) {
+        throw StateError(
+          'asset 누락 — cellId=$cellId assetId=$assetId. '
+          '권한 변경 또는 asset 삭제 가능성.',
+        );
+      }
+      if (bbox == null) {
+        throw StateError(
+          'bbox 누락 — cellId=$cellId. 알고리즘 계약 위반.',
+        );
+      }
 
       final file = await asset.file;
-      if (file == null) continue;
+      if (file == null) {
+        throw StateError(
+          'asset.file 누락 — cellId=$cellId id=$assetId. '
+          '권한 limited 변경 가능성.',
+        );
+      }
 
       if (asset.type == AssetType.video) {
         result.add(VideoSource(
